@@ -34,11 +34,7 @@
     background: linear-gradient(90deg, transparent, #b48c3c, #e8c96a, #b48c3c, transparent);
   }
 
-  .search-row {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
+  .search-row { display: flex; gap: 8px; align-items: center; }
 
   .game-logo {
     font-family: 'Rajdhani', sans-serif;
@@ -120,16 +116,14 @@
     border: 1.5px solid rgba(180,140,60,0.5);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 16px; font-weight: 700;
     color: #e8c96a;
     flex-shrink: 0;
   }
 
   .player-name {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 20px; font-weight: 700;
     color: #f0e8d0;
     letter-spacing: 0.5px;
     line-height: 1;
@@ -140,9 +134,7 @@
     color: rgba(232,224,208,0.5);
     letter-spacing: 1px;
     margin-top: 3px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: flex; align-items: center; gap: 6px;
   }
 
   .rank-dot {
@@ -152,10 +144,7 @@
     display: inline-block;
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-  }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
 
   .stat-cell {
     padding: 10px 8px;
@@ -176,20 +165,15 @@
 
   .stat-value {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: #e8c96a;
-    line-height: 1;
+    font-size: 18px; font-weight: 700;
+    color: #e8c96a; line-height: 1;
   }
 
   .stat-value.good    { color: #7ec87a; }
   .stat-value.neutral { color: #e8c96a; }
   .stat-value.warn    { color: #e87a4a; }
 
-  .heroes-section {
-    padding: 10px 14px 12px;
-    border-top: 1px solid rgba(180,140,60,0.1);
-  }
+  .heroes-section { padding: 10px 14px 12px; border-top: 1px solid rgba(180,140,60,0.1); }
 
   .section-label {
     font-size: 9px;
@@ -200,69 +184,51 @@
   }
 
   .hero-list { display: flex; flex-direction: column; gap: 5px; }
-
-  .hero-row { display: flex; align-items: center; gap: 8px; }
+  .hero-row  { display: flex; align-items: center; gap: 8px; }
 
   .hero-name {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 13px; font-weight: 600;
     color: #c8b898;
     width: 90px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     flex-shrink: 0;
   }
 
   .hero-bar-wrap {
-    flex: 1;
-    height: 4px;
+    flex: 1; height: 4px;
     background: rgba(255,255,255,0.06);
-    border-radius: 2px;
-    overflow: hidden;
+    border-radius: 2px; overflow: hidden;
   }
 
   .hero-bar {
-    height: 100%;
-    border-radius: 2px;
+    height: 100%; border-radius: 2px;
     background: linear-gradient(90deg, #b48c3c, #e8c96a);
     transition: width 0.5s ease;
   }
 
   .hero-wr {
-    font-size: 11px;
-    font-weight: 600;
-    color: #9aba90;
-    width: 38px;
-    text-align: right;
-    flex-shrink: 0;
+    font-size: 11px; font-weight: 600;
+    color: #9aba90; width: 38px;
+    text-align: right; flex-shrink: 0;
   }
 
   .hero-matches {
     font-size: 10px;
     color: rgba(232,224,208,0.3);
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
+    width: 32px; text-align: right; flex-shrink: 0;
   }
 
   .recent-section { padding: 0 14px 12px; }
-
   .match-list { display: flex; flex-direction: column; gap: 4px; }
-
-  .match-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .match-row  { display: flex; align-items: center; gap: 8px; font-size: 11px; }
 
   .match-result {
-    width: 26px;
-    text-align: center;
+    width: 26px; text-align: center;
     font-family: 'Rajdhani', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 11px; font-weight: 700;
     letter-spacing: 0.5px;
-    padding: 2px 0;
-    border-radius: 2px;
-    flex-shrink: 0;
+    padding: 2px 0; border-radius: 2px; flex-shrink: 0;
   }
 
   .match-result.win  { color: #7ec87a; background: rgba(126,200,122,0.12); }
@@ -270,37 +236,26 @@
 
   .match-hero {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    color: #c8b898;
-    width: 80px;
-    flex-shrink: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 12px; font-weight: 600;
+    color: #c8b898; width: 80px; flex-shrink: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
   .match-kda { color: rgba(232,224,208,0.55); flex: 1; }
 
   .match-role {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(180,140,60,0.6);
-    width: 48px;
-    text-align: right;
-    flex-shrink: 0;
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1px; color: rgba(180,140,60,0.6);
+    width: 48px; text-align: right; flex-shrink: 0;
   }
 
   .divider { height: 1px; background: rgba(180,140,60,0.1); margin: 0 14px; }
 
   #error-msg {
     display: none;
-    padding: 10px 14px;
-    font-size: 12px;
-    color: #e87a4a;
-    text-align: center;
-    letter-spacing: 0.5px;
+    padding: 10px 0 0;
+    font-size: 12px; color: #e87a4a;
+    text-align: center; letter-spacing: 0.5px;
   }
 
   .loading-dots::after {
@@ -315,9 +270,7 @@
     100% { content: ''; }
   }
 
-  .fade-in {
-    animation: fadeIn 0.4s ease forwards;
-  }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
 
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(4px); }
@@ -349,8 +302,8 @@
         </div>
       </div>
       <div style="margin-left:auto; text-align:right;">
-        <div style="font-family:'Rajdhani',sans-serif; font-size:22px; font-weight:700; color:#e8c96a; line-height:1;" id="display-vp">—</div>
-        <div style="font-size:9px; letter-spacing:2px; color:rgba(232,224,208,0.3); text-transform:uppercase;">Puntos</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#e8c96a;line-height:1;" id="display-vp">—</div>
+        <div style="font-size:9px;letter-spacing:2px;color:rgba(232,224,208,0.3);text-transform:uppercase;">Puntos</div>
       </div>
     </div>
 
@@ -383,14 +336,19 @@
     <div class="divider"></div>
 
     <div class="recent-section">
-      <div class="section-label" style="padding: 10px 0 6px;">Partidas recientes</div>
+      <div class="section-label" style="padding:10px 0 6px;">Partidas recientes</div>
       <div class="match-list" id="match-list"></div>
     </div>
   </div>
 </div>
 
 <script>
-const BASE = 'https://pred.gg/api/v1';
+// ════════════════════════════════════════════════
+// ⚠️  PON AQUÍ TU URL DEL WORKER DE CLOUDFLARE
+//     Ejemplo: https://pred-proxy.tunombre.workers.dev
+// ════════════════════════════════════════════════
+const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
+
 const $ = id => document.getElementById(id);
 
 const ROLE_MAP = {
@@ -398,8 +356,8 @@ const ROLE_MAP = {
   carry: 'Carry', support: 'Support'
 };
 
-async function fetchJSON(url) {
-  const res = await fetch(url, {
+async function fetchJSON(path) {
+  const res = await fetch(WORKER_URL + '/api' + path, {
     headers: { 'Accept': 'application/json' }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -410,33 +368,34 @@ async function searchPlayer() {
   const name = $('player-input').value.trim();
   if (!name) return;
 
-  const btn = $('search-btn');
+  const btn    = $('search-btn');
   const status = $('status-msg');
-  const card = $('player-card');
-  const err = $('error-msg');
+  const card   = $('player-card');
+  const err    = $('error-msg');
 
   btn.disabled = true;
   card.style.display = 'none';
-  err.style.display = 'none';
-  status.innerHTML = '<span class="loading-dots">Buscando</span>';
+  err.style.display  = 'none';
+  status.innerHTML   = '<span class="loading-dots">Buscando</span>';
 
   try {
-    const searchUrl = `${BASE}/players?filter[name]=${encodeURIComponent(name)}&filter[include_inactive]=0&filter[include_unranked]=1&page=1`;
-    const searchData = await fetchJSON(searchUrl);
+    const searchData = await fetchJSON(
+      `/players?filter[name]=${encodeURIComponent(name)}&filter[include_inactive]=0&filter[include_unranked]=1&page=1`
+    );
 
     if (!searchData.data || searchData.data.length === 0) {
       throw new Error('Jugador no encontrado');
     }
 
-    const player = searchData.data[0];
+    const player   = searchData.data[0];
     const playerId = player.id;
 
     status.innerHTML = '<span class="loading-dots">Cargando stats</span>';
 
     const [statsData, heroStatsData, matchData] = await Promise.all([
-      fetchJSON(`${BASE}/players/${playerId}`),
-      fetchJSON(`${BASE}/players/${playerId}/hero-stats?time_frame=1M`),
-      fetchJSON(`${BASE}/players/${playerId}/matches?per_page=5&time_frame=1M`)
+      fetchJSON(`/players/${playerId}`),
+      fetchJSON(`/players/${playerId}/hero-stats?time_frame=1M`),
+      fetchJSON(`/players/${playerId}/matches?per_page=5&time_frame=1M`)
     ]);
 
     renderCard(player, statsData, heroStatsData, matchData);
@@ -448,19 +407,17 @@ async function searchPlayer() {
 
   } catch (e) {
     status.textContent = '';
-    err.style.display = 'block';
-    if (e.message === 'Jugador no encontrado') {
-      err.textContent = '✕ Jugador no encontrado — revisa el nombre exacto';
-    } else {
-      err.textContent = '✕ Error: ' + e.message.slice(0, 80);
-    }
+    err.style.display  = 'block';
+    err.textContent = e.message === 'Jugador no encontrado'
+      ? '✕ Jugador no encontrado — revisa el nombre exacto'
+      : '✕ Error: ' + e.message.slice(0, 80);
   } finally {
     btn.disabled = false;
   }
 }
 
 function renderCard(playerBase, statsData, heroStatsData, matchData) {
-  const p = statsData.data || playerBase;
+  const p    = statsData.data || playerBase;
   const name = p.attributes?.name || playerBase.attributes?.name || 'Desconocido';
   const rank = p.attributes?.rank_title || '—';
   const region = (p.attributes?.region || '—')
@@ -468,52 +425,51 @@ function renderCard(playerBase, statsData, heroStatsData, matchData) {
     .replace('eu','Europe').replace('oce','Oceania').replace('sa','Latam');
   const vp = p.attributes?.victory_points || 0;
 
-  $('display-name').textContent = name;
+  $('display-name').textContent    = name;
   $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
-  $('display-rank').textContent = rank;
-  $('display-region').textContent = region;
-  $('display-vp').textContent = vp.toLocaleString();
+  $('display-rank').textContent    = rank;
+  $('display-region').textContent  = region;
+  $('display-vp').textContent      = vp.toLocaleString();
 
-  const stats = p.attributes?.stats || {};
+  const stats        = p.attributes?.stats || {};
   const totalMatches = stats.matches_played || 0;
-  const wins = stats.wins || 0;
-  const wr = totalMatches > 0 ? (wins / totalMatches * 100) : 0;
-  const kills = stats.kills || 0;
-  const deaths = stats.deaths || 1;
-  const assists = stats.assists || 0;
-  const kda = ((kills + assists) / Math.max(deaths, 1)).toFixed(2);
-  const ps = (stats.average_performance_score || 0).toFixed(1);
+  const wins         = stats.wins || 0;
+  const wr           = totalMatches > 0 ? (wins / totalMatches * 100) : 0;
+  const kills        = stats.kills || 0;
+  const deaths       = stats.deaths || 1;
+  const assists      = stats.assists || 0;
+  const kda          = ((kills + assists) / Math.max(deaths, 1)).toFixed(2);
+  const ps           = (stats.average_performance_score || 0).toFixed(1);
 
   $('stat-matches').textContent = totalMatches.toLocaleString();
 
   const wrEl = $('stat-winrate');
   wrEl.textContent = wr.toFixed(1) + '%';
-  wrEl.className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
+  wrEl.className   = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
 
   const kdaEl = $('stat-kda');
   kdaEl.textContent = kda;
-  kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+  kdaEl.className   = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
 
   $('stat-ps').textContent = ps;
 
-  // Héroes favoritos
+  // Héroes
   const heroList = $('hero-list');
   heroList.innerHTML = '';
-  const heroes = (heroStatsData.data || [])
-    .sort((a, b) => (b.attributes?.matches_played || 0) - (a.attributes?.matches_played || 0))
-    .slice(0, 4);
-
+  const heroes   = (heroStatsData.data || [])
+    .sort((a,b) => (b.attributes?.matches_played||0) - (a.attributes?.matches_played||0))
+    .slice(0,4);
   const maxGames = heroes[0]?.attributes?.matches_played || 1;
 
   if (heroes.length === 0) {
-    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);letter-spacing:1px;">Sin datos recientes</div>';
+    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos recientes</div>';
   } else {
     heroes.forEach(h => {
-      const hName = h.attributes?.hero_name || h.attributes?.name || 'Héroe';
+      const hName    = h.attributes?.hero_name || h.attributes?.name || 'Héroe';
       const hMatches = h.attributes?.matches_played || 0;
-      const hWins = h.attributes?.wins || 0;
-      const hWR = hMatches > 0 ? (hWins / hMatches * 100) : 0;
-      const barW = Math.round((hMatches / maxGames) * 100);
+      const hWins    = h.attributes?.wins || 0;
+      const hWR      = hMatches > 0 ? (hWins / hMatches * 100) : 0;
+      const barW     = Math.round((hMatches / maxGames) * 100);
       heroList.innerHTML += `
         <div class="hero-row">
           <div class="hero-name">${hName}</div>
@@ -525,24 +481,22 @@ function renderCard(playerBase, statsData, heroStatsData, matchData) {
   }
 
   // Partidas recientes
-  const matchList = $('match-list');
+  const matchList    = $('match-list');
   matchList.innerHTML = '';
   const recentMatches = matchData.data || [];
 
   if (recentMatches.length === 0) {
-    matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);letter-spacing:1px;">Sin partidas recientes</div>';
+    matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
   } else {
-    recentMatches.slice(0, 5).forEach(m => {
-      const att = m.attributes || {};
-      const won = att.won;
+    recentMatches.slice(0,5).forEach(m => {
+      const att  = m.attributes || {};
+      const won  = att.won;
       const hero = att.hero_name || '—';
       const role = ROLE_MAP[att.role] || att.role || '—';
-      const k = att.kills || 0;
-      const d = att.deaths || 0;
-      const a = att.assists || 0;
+      const k = att.kills || 0, d = att.deaths || 0, a = att.assists || 0;
       matchList.innerHTML += `
         <div class="match-row">
-          <div class="match-result ${won ? 'win' : 'loss'}">${won ? 'V' : 'D'}</div>
+          <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
           <div class="match-hero">${hero}</div>
           <div class="match-kda">${k}/${d}/${a}</div>
           <div class="match-role">${role}</div>
