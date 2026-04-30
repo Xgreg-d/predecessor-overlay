@@ -283,8 +283,8 @@
 <div id="search-panel">
   <div class="game-logo">⬡ Predecessor Stats · pred.gg</div>
   <div class="search-row">
-    <input type="text" id="player-input" placeholder="Nombre del jugador..." autocomplete="off" />
-    <button id="search-btn" onclick="searchPlayer()">Buscar</button>
+    <input type="text" id="player-input" placeholder="UUID o nombre (pred.gg)..." autocomplete="off" />
+    <button id="search-btn">Buscar</button>
   </div>
   <div id="status-msg"></div>
   <div id="error-msg"></div>
@@ -358,8 +358,8 @@ async function apiGet(path) {
 }
 
 async function searchPlayer() {
-  const name = $('player-input').value.trim();
-  if (!name) return;
+  const input = $('player-input').value.trim();
+  if (!input) return;
 
   const btn    = $('search-btn');
   const status = $('status-msg');
@@ -369,20 +369,28 @@ async function searchPlayer() {
   btn.disabled = true;
   card.style.display = 'none';
   err.style.display  = 'none';
-  status.innerHTML   = '<span class="loading-dots">Buscando</span>';
+  status.innerHTML   = '<span class="loading-dots">Cargando stats</span>';
 
   try {
-    // 1. Buscar jugador por nombre
-    const searchRes = await apiGet(`/search?name=${encodeURIComponent(name)}`);
-    const results = searchRes?.data?.playersPaginated?.results;
-    if (!results || results.length === 0) throw new Error('Jugador no encontrado');
+    // ✅ Acepta UUID directo o nombre
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
+    
+    let uuid;
+    if (isUUID) {
+      uuid = input;
+    } else {
+      // ✅ Usa /search (ya existe en worker)
+      const searchRes = await apiGet(`/search?name=${encodeURIComponent(input)}`);
+      const playerList = searchRes?.data?.playersPaginated?.results;
+      if (!playerList || playerList.length === 0) {
+        throw new Error('Jugador no encontrado — usa tu UUID de pred.gg o revisa el nombre');
+      }
 
-    const player = results[0];
-    const uuid = player.uuid;
+      // Elige coincidencia exacta primero (case-insensitive)
+      const exactMatch = playerList.find(p => p.name.toLowerCase() === input.toLowerCase());
+      uuid = exactMatch?.uuid || playerList[0].uuid;
+    }
 
-    status.innerHTML = '<span class="loading-dots">Cargando stats</span>';
-
-    // 2. Cargar stats y partidas en paralelo
     const [statsRes, matchesRes] = await Promise.all([
       apiGet(`/stats?uuid=${uuid}`),
       apiGet(`/matches?uuid=${uuid}`)
@@ -398,16 +406,14 @@ async function searchPlayer() {
   } catch (e) {
     status.textContent = '';
     err.style.display  = 'block';
-    err.textContent = e.message === 'Jugador no encontrado'
-      ? '✕ Jugador no encontrado — revisa el nombre exacto'
-      : '✕ Error: ' + e.message.slice(0, 80);
+    err.textContent = '✕ ' + e.message.slice(0, 100);
   } finally {
     btn.disabled = false;
   }
 }
 
 function renderCard(player, matchesPlayer) {
-  if (!player) { throw new Error('Sin datos del jugador'); }
+  if (!player) throw new Error('Sin datos del jugador');
 
   const name    = player.name || 'Desconocido';
   const region  = (player.favRegion || '—')
@@ -479,11 +485,11 @@ function renderCard(player, matchesPlayer) {
     matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
   } else {
     recentMatches.slice(0,5).forEach(r => {
-      const match   = r.match || {};
-      const me      = (r.matchPlayers || []).find(p => p.player?.name === player.name) || r.matchPlayers?.[0] || {};
-      const won     = match.winningTeam === me.team;
-      const hero    = me.hero?.data?.displayName || '—';
-      const role    = ROLE_MAP[me.role] || me.role || '—';
+      const match = r.match || {};
+      const me    = (r.matchPlayers || []).find(p => p.player?.name === player.name) || r.matchPlayers?.[0] || {};
+      const won   = match.winningTeam === me.team;
+      const hero  = me.hero?.data?.displayName || '—';
+      const role  = ROLE_MAP[me.role] || me.role || '—';
       const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
       matchList.innerHTML += `
         <div class="match-row">
@@ -496,7 +502,10 @@ function renderCard(player, matchesPlayer) {
   }
 }
 
-$('player-input').addEventListener('keydown', e => {
+// Botón y Enter
+const searchBtn = $('search-btn');
+searchBtn.onclick = searchPlayer;
+document.getElementById('player-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') searchPlayer();
 });
 </script>
