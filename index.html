@@ -6,7 +6,150 @@
 <title>Predecessor Stats · Split Actualizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  /* [MANTENER ESTILOS IGUAL QUE EL CÓDIGO ANTERIOR - NO COPIAR ESTE, USA EL DE ARRIBA CON EL DE ABAJO] */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Exo 2', sans-serif;
+    width: 420px;
+    overflow: hidden;
+    color: #e8e0d0;
+  }
+  #search-panel {
+    background: rgba(10, 14, 20, 0.92);
+    border: 1px solid rgba(180, 140, 60, 0.4);
+    border-radius: 4px;
+    padding: 14px 16px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(180,140,60,0.15);
+    position: relative;
+  }
+  #search-panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #b48c3c, #e8c96a, #b48c3c, transparent);
+  }
+  .search-row { display: flex; gap: 8px; align-items: center; }
+  .game-logo {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: #b48c3c; margin-bottom: 10px; opacity: 0.8;
+  }
+  input[type="text"] {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(180,140,60,0.3);
+    border-radius: 3px;
+    padding: 8px 12px;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px; color: #e8e0d0;
+    outline: none;
+  }
+  input[type="text"]::placeholder { color: rgba(232,224,208,0.3); }
+  input[type="text"]:focus { border-color: rgba(180,140,60,0.7); }
+  button {
+    background: rgba(180,140,60,0.15);
+    border: 1px solid rgba(180,140,60,0.5);
+    border-radius: 3px;
+    padding: 8px 14px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: #e8c96a; cursor: pointer;
+    transition: all 0.2s;
+  }
+  button:hover { background: rgba(180,140,60,0.3); border-color: #b48c3c; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  #status-msg { font-size: 11px; color: rgba(232,224,208,0.4); margin-top: 8px; min-height: 14px; }
+  #player-card { display: none; margin-top: 10px; background: rgba(8,12,18,0.95); border: 1px solid rgba(180,140,60,0.25); border-radius: 4px; overflow: hidden; }
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(180,140,60,0.07); border-bottom: 1px solid rgba(180,140,60,0.15); }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(180,140,60,0.2);
+    border: 1.5px solid rgba(180,140,60,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px; font-weight: 700;
+    color: #e8c96a;
+  }
+  .player-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px; font-weight: 700;
+    color: #f0e8d0; letter-spacing: 0.5px; line-height: 1;
+  }
+  .rank-badge { font-size: 11px; color: rgba(232,224,208,0.5); letter-spacing: 1px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
+  .rank-dot { width: 6px; height: 6px; border-radius: 50%; background: #b48c3c; display: inline-block; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat-cell { padding: 10px 8px; text-align: center; border-right: 1px solid rgba(180,140,60,0.1); border-bottom: 1px solid rgba(180,140,60,0.1); }
+  .stat-cell:nth-child(4) { border-right: none; }
+  .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(232,224,208,0.35); margin-bottom: 4px; }
+  .stat-value {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 18px; font-weight: 700;
+    color: #e8c96a;
+  }
+  .stat-value.good    { color: #7ec87a; }
+  .stat-value.neutral { color: #e8c96a; }
+  .stat-value.warn    { color: #e87a4a; }
+  .heroes-section { padding: 10px 14px 12px; border-top: 1px solid rgba(180,140,60,0.1); }
+  .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(232,224,208,0.3); margin-bottom: 8px; }
+  .hero-list { display: flex; flex-direction: column; gap: 5px; }
+  .hero-row { display: flex; align-items: center; gap: 8px; }
+  .hero-name {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: #c8b898; width: 90px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .hero-bar-wrap { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+  .hero-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #b48c3c, #e8c96a); transition: width 0.5s ease; }
+  .hero-wr { font-size: 11px; font-weight: 600; color: #9aba90; width: 38px; text-align: right; }
+  .hero-matches { font-size: 10px; color: rgba(232,224,208,0.3); width: 32px; text-align: right; }
+  .recent-section { padding: 0 14px 12px; }
+  .match-list { display: flex; flex-direction: column; gap: 4px; }
+  .match-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+  .match-result {
+    width: 26px; text-align: center;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 0.5px; padding: 2px 0; border-radius: 2px;
+  }
+  .match-result.win  { color: #7ec87a; background: rgba(126,200,122,0.12); }
+  .match-result.loss { color: #e87a4a; background: rgba(232,122,74,0.12); }
+  .match-hero {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 12px; font-weight: 600;
+    color: #c8b898; width: 80px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .match-kda { color: rgba(232,224,208,0.55); flex: 1; }
+  .match-role {
+    font-size: 9px; text-transform: uppercase;
+    letter-spacing: 1px; color: rgba(180,140,60,0.6);
+    width: 48px; text-align: right;
+  }
+  .divider { height: 1px; background: rgba(180,140,60,0.1); margin: 0 14px; }
+  #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
+  .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
+  @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
+  .fade-in { animation: fadeIn 0.4s ease forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .live-badge {
+    display: inline-block;
+    background: #7ec87a;
+    color: white;
+    font-size: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 </style>
 </head>
 <body>
@@ -30,6 +173,7 @@
           <span id="display-rank">—</span>
           <span style="color:rgba(232,224,208,0.2)">·</span>
           <span id="display-region">—</span>
+          <span id="live-badge" class="live-badge" style="display:none">ACTUALIZADO</span>
         </div>
       </div>
       <div style="margin-left:auto; text-align:right;">
@@ -77,15 +221,15 @@
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
 
+const ROLE_MAP = {
+  OFFLANE: 'Offlane', JUNGLE: 'Jungle', MIDLANE: 'Mid',
+  CARRY: 'Carry', SUPPORT: 'Support'
+};
+
 async function apiGet(path) {
-  try {
-    const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch (e) {
-    console.error("❌ Error en API:", path, e);
-    throw e;
-  }
+  const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 async function searchPlayer() {
@@ -100,73 +244,73 @@ async function searchPlayer() {
   btn.disabled = true;
   card.style.display = 'none';
   err.style.display  = 'none';
-  status.innerHTML   = '<span class="loading-dots">Cargando...</span>';
+  status.innerHTML   = '<span class="loading-dots">Cargando datos actualizados</span>';
 
   try {
-    // ✅ Validar UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
-    if (!isUUID) throw new Error('Solo UUID válido. Copia de pred.gg');
+    if (!isUUID) {
+      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg (ej: 550e8400-e29b...).');
+    }
 
     const uuid = input;
-    console.log("🔍 Buscando UUID:", uuid);
 
-    // ✅ Cargar datos
+    // ✅ Cargar datos del perfil + últimas 5 partidas
     const [statsRes, matchesRes] = await Promise.all([
       apiGet(`/stats?uuid=${uuid}`),
       apiGet(`/matches?uuid=${uuid}`)
     ]);
 
-    console.log("✅ statsRes:", statsRes);
-    console.log("✅ matchesRes:", matchesRes);
-
     const player = statsRes?.data?.player;
-    if (!player) throw new Error('Jugador no encontrado. Verifica el UUID');
-
-    // 1️⃣ Datos del perfil
-    const name = player.name || 'Desconocido';
-    const regionRaw = player.favRegion || '—';
-    const region = regionRaw.replace('NA_EAST', 'NA East')
-                            .replace('NA_WEST', 'NA West')
-                            .replace('EUROPE', 'Europe')
-                            .replace('OCE', 'Oceania')
-                            .replace('SA', 'Latam');
-    const rank = player.ratings?.rank?.name || '—';
-    const vp = player.ratings?.points || 0;
-
-    $('display-name').textContent = name;
-    $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
-    $('display-rank').textContent = rank;
-    $('display-region').textContent = region;
-    $('display-vp').textContent = vp.toLocaleString();
-
-    console.log("✅ Datos perfil:", { name, region, rank, vp });
-
-    // 2️⃣ Stats recientes (últimas 5 partidas)
     const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
+
+    if (!player) throw new Error('Jugador no encontrado — usa tu UUID de pred.gg');
+
+    // 1️⃣ Datos del perfil (de /stats)
+    const name    = player.name || 'Desconocido';
+    const region  = (player.favRegion || '—')
+      .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
+      .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
+    const rank    = player.ratings?.rank?.name || '—';
+    const vp      = player.ratings?.points || 0;
+
+    $('display-name').textContent    = name;
+    $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
+    $('display-rank').textContent    = rank;
+    $('display-region').textContent  = region;
+    $('display-vp').textContent      = vp.toLocaleString();
+
+    // 2️⃣ Calcular stats *recientes* (últimas 5 partidas)
     let wins = 0, losses = 0;
-    let k = 0, d = 0, a = 0;
+    let totalK = 0, totalD = 0, totalA = 0;
 
     matchesData.forEach(m => {
       const me = m.matchPlayers?.[0] || {};
       if (m.match?.winningTeam === (me.team || 0)) wins++;
       else losses++;
-      k += me.kills || 0;
-      d += me.deaths || 0;
-      a += me.assists || 0;
+      totalK += me.kills || 0;
+      totalD += me.deaths || 0;
+      totalA += me.assists || 0;
     });
 
     const totalMatches = wins + losses;
     const wr = totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : 0;
-    const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
+    const kda = totalD > 0 ? ((totalK + totalA) / totalD).toFixed(2) : '0.00';
 
-    $('stat-matches').textContent = totalMatches.toLocaleString();
-    $('stat-winrate').textContent = wr + '%';
-    $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
+    const statMatches = $('stat-matches');
+    statMatches.textContent = totalMatches.toLocaleString();
+    statMatches.className = 'stat-value neutral';
 
-    $('stat-kda').textContent = kda;
-    $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+    const wrEl = $('stat-winrate');
+    wrEl.textContent = wr + '%';
+    wrEl.className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
 
-    // 3️⃣ Héroes favoritos
+    const kdaEl = $('stat-kda');
+    kdaEl.textContent = kda;
+    kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+
+    $('stat-ps').textContent = '—';
+
+    // 3️⃣ Héroes favoritos (de /stats)
     const heroList = $('hero-list');
     heroList.innerHTML = '';
     const heroes = (player.heroStatistics?.results || [])
@@ -193,23 +337,23 @@ async function searchPlayer() {
       });
     }
 
-    // 4️⃣ Últimas 5 partidas
+    // 4️⃣ Últimas 5 partidas (de /matches)
     const matchList = $('match-list');
     matchList.innerHTML = '';
     if (matchesData.length === 0) {
-      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas</div>';
+      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
     } else {
       matchesData.slice(0,5).forEach(m => {
         const match = m.match || {};
         const me = m.matchPlayers?.[0] || {};
         const won = match.winningTeam === (me.team || 0);
         const hero = me.hero?.data?.displayName || '—';
-        const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
+        const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
         matchList.innerHTML += `
           <div class="match-row">
             <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
             <div class="match-hero">${hero}</div>
-            <div class="match-kda">${k_}/${d_}/${a_}</div>
+            <div class="match-kda">${k}/${d}/${a}</div>
             <div class="match-role">—</div>
           </div>`;
       });
@@ -221,7 +365,7 @@ async function searchPlayer() {
     void card.offsetWidth;
     card.classList.add('fade-in');
 
-    // ✅ Auto-refresco cada 15s
+    // ✅ Auto-refrescar cada 15s (como LOLOBOT)
     if (window.refreshInterval) clearInterval(window.refreshInterval);
     window.refreshInterval = setInterval(async () => {
       try {
@@ -229,36 +373,53 @@ async function searchPlayer() {
           apiGet(`/stats?uuid=${uuid}`),
           apiGet(`/matches?uuid=${uuid}`)
         ]);
-        // Recalcular stats
+        // Actualizar stats recientes
         const mData = mRes?.data?.player?.matchesPaginated?.results || [];
-        let wins2 = 0, losses2 = 0, k2 = 0, d2 = 0, a2 = 0;
+        let wins = 0, losses = 0, k = 0, d = 0, a = 0;
         mData.forEach(m => {
           const me = m.matchPlayers?.[0] || {};
-          if (m.match?.winningTeam === (me.team || 0)) wins2++;
-          else losses2++;
-          k2 += me.kills || 0;
-          d2 += me.deaths || 0;
-          a2 += me.assists || 0;
+          if (m.match?.winningTeam === (me.team || 0)) wins++;
+          else losses++;
+          k += me.kills || 0; d += me.deaths || 0; a += me.assists || 0;
         });
-        const t2 = wins2 + losses2;
-        const wr2 = t2 > 0 ? (wins2 / t2 * 100).toFixed(1) : 0;
-        const kda2 = d2 > 0 ? ((k2 + a2) / d2).toFixed(2) : '0.00';
-        $('stat-winrate').textContent = wr2 + '%';
-        $('stat-winrate').className = 'stat-value ' + (wr2 >= 55 ? 'good' : wr2 >= 45 ? 'neutral' : 'warn');
-        $('stat-kda').textContent = kda2;
-        $('stat-kda').className = 'stat-value ' + (parseFloat(kda2) >= 3 ? 'good' : parseFloat(kda2) >= 1.5 ? 'neutral' : 'warn');
+        const total = wins + losses;
+        const wr = total > 0 ? (wins / total * 100).toFixed(1) : 0;
+        const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
+
+        $('stat-winrate').textContent = wr + '%';
+        $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
+
+        $('stat-kda').textContent = kda;
+        $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+
+        $('match-list').innerHTML = '';
+        mData.slice(0,5).forEach(m => {
+          const match = m.match || {};
+          const me = m.matchPlayers?.[0] || {};
+          const won = match.winningTeam === (me.team || 0);
+          const hero = me.hero?.data?.displayName || '—';
+          const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
+          $('match-list').innerHTML += `
+            <div class="match-row">
+              <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
+              <div class="match-hero">${hero}</div>
+              <div class="match-kda">${k_}/${d_}/${a_}</div>
+              <div class="match-role">—</div>
+            </div>`;
+        });
+
       } catch (e) {
-        console.warn("Refresco:", e);
+        console.warn("Refresco fallido:", e);
       }
     }, 15000);
 
-    status.innerHTML = `<span style="color:#7ec87a">✔ Actualizado</span>`;
+    status.innerHTML = `<span style="color:#7ec87a">✔ Datos actualizados (últimos 5 matches)</span>`;
+    document.getElementById('live-badge').style.display = 'inline-block';
 
   } catch (e) {
     status.textContent = '';
     err.style.display = 'block';
     err.textContent = '✕ ' + e.message.slice(0, 100);
-    console.error("Error completo:", e);
   } finally {
     btn.disabled = false;
   }
