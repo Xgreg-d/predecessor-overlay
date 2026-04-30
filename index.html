@@ -137,19 +137,6 @@
   @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
   .fade-in { animation: fadeIn 0.4s ease forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  .live-badge {
-    display: inline-block;
-    background: #7ec87a;
-    color: white;
-    font-size: 8px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 8px;
-    font-weight: 700;
-    text-transform: uppercase;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 </style>
 </head>
 <body>
@@ -173,7 +160,6 @@
           <span id="display-rank">—</span>
           <span style="color:rgba(232,224,208,0.2)">·</span>
           <span id="display-region">—</span>
-          <span id="live-badge" class="live-badge" style="display:none">ACTUALIZADO</span>
         </div>
       </div>
       <div style="margin-left:auto; text-align:right;">
@@ -249,68 +235,62 @@ async function searchPlayer() {
   try {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
     if (!isUUID) {
-      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg (ej: 550e8400-e29b...).');
+      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg.');
     }
 
     const uuid = input;
-
-    // ✅ Cargar datos del perfil + últimas 5 partidas
     const [statsRes, matchesRes] = await Promise.all([
       apiGet(`/stats?uuid=${uuid}`),
       apiGet(`/matches?uuid=${uuid}`)
     ]);
 
     const player = statsRes?.data?.player;
-    const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
+    if (!player) throw new Error('Jugador no encontrado — revisa el UUID');
 
-    if (!player) throw new Error('Jugador no encontrado — usa tu UUID de pred.gg');
+    // Datos del perfil (nombre, rank, región, VP)
+    const name = player.name || 'Desconocido';
+    const region = (player.favRegion || '—')
+      .replace('NA_EAST', 'NA East')
+      .replace('NA_WEST', 'NA West')
+      .replace('EUROPE', 'Europe')
+      .replace('OCE', 'Oceania')
+      .replace('SA', 'Latam');
+    const rank = player.ratings?.rank?.name || '—';
+    const vp = player.ratings?.points || 0;
 
-    // 1️⃣ Datos del perfil (de /stats)
-    const name    = player.name || 'Desconocido';
-    const region  = (player.favRegion || '—')
-      .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
-      .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
-    const rank    = player.ratings?.rank?.name || '—';
-    const vp      = player.ratings?.points || 0;
-
-    $('display-name').textContent    = name;
+    $('display-name').textContent = name;
     $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
-    $('display-rank').textContent    = rank;
-    $('display-region').textContent  = region;
-    $('display-vp').textContent      = vp.toLocaleString();
+    $('display-rank').textContent = rank;
+    $('display-region').textContent = region;
+    $('display-vp').textContent = vp.toLocaleString();
 
-    // 2️⃣ Calcular stats *recientes* (últimas 5 partidas)
-    let wins = 0, losses = 0;
-    let totalK = 0, totalD = 0, totalA = 0;
+    // Stats recientes (últimas 5 partidas)
+    const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
+    let wins = 0, losses = 0, k = 0, d = 0, a = 0;
 
     matchesData.forEach(m => {
       const me = m.matchPlayers?.[0] || {};
       if (m.match?.winningTeam === (me.team || 0)) wins++;
       else losses++;
-      totalK += me.kills || 0;
-      totalD += me.deaths || 0;
-      totalA += me.assists || 0;
+      k += me.kills || 0;
+      d += me.deaths || 0;
+      a += me.assists || 0;
     });
 
     const totalMatches = wins + losses;
     const wr = totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : 0;
-    const kda = totalD > 0 ? ((totalK + totalA) / totalD).toFixed(2) : '0.00';
+    const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
 
-    const statMatches = $('stat-matches');
-    statMatches.textContent = totalMatches.toLocaleString();
-    statMatches.className = 'stat-value neutral';
+    $('stat-matches').textContent = totalMatches.toLocaleString();
+    $('stat-winrate').textContent = wr + '%';
+    $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
 
-    const wrEl = $('stat-winrate');
-    wrEl.textContent = wr + '%';
-    wrEl.className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
-
-    const kdaEl = $('stat-kda');
-    kdaEl.textContent = kda;
-    kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+    $('stat-kda').textContent = kda;
+    $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
 
     $('stat-ps').textContent = '—';
 
-    // 3️⃣ Héroes favoritos (de /stats)
+    // Héroes favoritos (Split)
     const heroList = $('hero-list');
     heroList.innerHTML = '';
     const heroes = (player.heroStatistics?.results || [])
@@ -337,23 +317,23 @@ async function searchPlayer() {
       });
     }
 
-    // 4️⃣ Últimas 5 partidas (de /matches)
+    // Últimas 5 partidas
     const matchList = $('match-list');
     matchList.innerHTML = '';
     if (matchesData.length === 0) {
-      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
+      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas</div>';
     } else {
       matchesData.slice(0,5).forEach(m => {
         const match = m.match || {};
         const me = m.matchPlayers?.[0] || {};
         const won = match.winningTeam === (me.team || 0);
         const hero = me.hero?.data?.displayName || '—';
-        const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
+        const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
         matchList.innerHTML += `
           <div class="match-row">
             <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
             <div class="match-hero">${hero}</div>
-            <div class="match-kda">${k}/${d}/${a}</div>
+            <div class="match-kda">${k_}/${d_}/${a_}</div>
             <div class="match-role">—</div>
           </div>`;
       });
@@ -364,57 +344,6 @@ async function searchPlayer() {
     card.classList.remove('fade-in');
     void card.offsetWidth;
     card.classList.add('fade-in');
-
-    // ✅ Auto-refrescar cada 15s (como LOLOBOT)
-    if (window.refreshInterval) clearInterval(window.refreshInterval);
-    window.refreshInterval = setInterval(async () => {
-      try {
-        const [sRes, mRes] = await Promise.all([
-          apiGet(`/stats?uuid=${uuid}`),
-          apiGet(`/matches?uuid=${uuid}`)
-        ]);
-        // Actualizar stats recientes
-        const mData = mRes?.data?.player?.matchesPaginated?.results || [];
-        let wins = 0, losses = 0, k = 0, d = 0, a = 0;
-        mData.forEach(m => {
-          const me = m.matchPlayers?.[0] || {};
-          if (m.match?.winningTeam === (me.team || 0)) wins++;
-          else losses++;
-          k += me.kills || 0; d += me.deaths || 0; a += me.assists || 0;
-        });
-        const total = wins + losses;
-        const wr = total > 0 ? (wins / total * 100).toFixed(1) : 0;
-        const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
-
-        $('stat-winrate').textContent = wr + '%';
-        $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
-
-        $('stat-kda').textContent = kda;
-        $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
-
-        $('match-list').innerHTML = '';
-        mData.slice(0,5).forEach(m => {
-          const match = m.match || {};
-          const me = m.matchPlayers?.[0] || {};
-          const won = match.winningTeam === (me.team || 0);
-          const hero = me.hero?.data?.displayName || '—';
-          const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
-          $('match-list').innerHTML += `
-            <div class="match-row">
-              <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
-              <div class="match-hero">${hero}</div>
-              <div class="match-kda">${k_}/${d_}/${a_}</div>
-              <div class="match-role">—</div>
-            </div>`;
-        });
-
-      } catch (e) {
-        console.warn("Refresco fallido:", e);
-      }
-    }, 15000);
-
-    status.innerHTML = `<span style="color:#7ec87a">✔ Datos actualizados (últimos 5 matches)</span>`;
-    document.getElementById('live-badge').style.display = 'inline-block';
 
   } catch (e) {
     status.textContent = '';
