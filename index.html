@@ -30,12 +30,17 @@
     height: 2px;
     background: linear-gradient(90deg, transparent, #b48c3c, #e8c96a, #b48c3c, transparent);
   }
-  .search-row { display: flex; gap: 8px; align-items: center; }
   .game-logo {
     font-family: 'Rajdhani', sans-serif;
     font-size: 11px; font-weight: 700;
     letter-spacing: 3px; text-transform: uppercase;
     color: #b48c3c; margin-bottom: 10px; opacity: 0.8;
+  }
+  .search-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    transition: all 0.3s ease;
   }
   input[type="text"] {
     flex: 1;
@@ -46,6 +51,7 @@
     font-family: 'Exo 2', sans-serif;
     font-size: 13px; color: #e8e0d0;
     outline: none;
+    transition: all 0.3s ease;
   }
   input[type="text"]::placeholder { color: rgba(232,224,208,0.3); }
   input[type="text"]:focus { border-color: rgba(180,140,60,0.7); }
@@ -63,7 +69,8 @@
   button:hover { background: rgba(180,140,60,0.3); border-color: #b48c3c; }
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   #status-msg { font-size: 11px; color: rgba(232,224,208,0.4); margin-top: 8px; min-height: 14px; }
-  #player-card { display: none; margin-top: 10px; background: rgba(8,12,18,0.95); border: 1px solid rgba(180,140,60,0.25); border-radius: 4px; overflow: hidden; }
+  #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
+  #player-card { display: none; margin-top: 10px; background: rgba(8,12,18,0.95); border: 1px solid rgba(180,140,60,0.25); border-radius: 4px; overflow: hidden; transition: all 0.4s ease; }
   .card-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(180,140,60,0.07); border-bottom: 1px solid rgba(180,140,60,0.15); }
   .avatar {
     width: 40px; height: 40px;
@@ -82,18 +89,9 @@
   }
   .rank-badge { font-size: 11px; color: rgba(232,224,208,0.5); letter-spacing: 1px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
   .rank-dot { width: 6px; height: 6px; border-radius: 50%; background: #b48c3c; display: inline-block; }
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* ← CAMBIO: 3 columnas en lugar de 4 */
-    gap: 0; /* Espacio entre celdas */
-  }
-  .stat-cell {
-    padding: 10px 8px;
-    text-align: center;
-    border-bottom: 1px solid rgba(180,140,60,0.1);
-    border-right: 1px solid rgba(180,140,60,0.1);
-  }
-  .stat-cell:nth-child(3) { border-right: none; } /* ← CAMBIO: última celda no tiene borde derecho */
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat-cell { padding: 10px 8px; text-align: center; border-right: 1px solid rgba(180,140,60,0.1); border-bottom: 1px solid rgba(180,140,60,0.1); }
+  .stat-cell:nth-child(3) { border-right: none; }
   .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(232,224,208,0.35); margin-bottom: 4px; }
   .stat-value {
     font-family: 'Rajdhani', sans-serif;
@@ -141,18 +139,53 @@
     width: 48px; text-align: right;
   }
   .divider { height: 1px; background: rgba(180,140,60,0.1); margin: 0 14px; }
-  #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
   .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
   @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
   .fade-in { animation: fadeIn 0.4s ease forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  /* ✅ Animaciones de toggle */
+  .slide-up { animation: slideUp 0.3s ease forwards; }
+  .slide-down { animation: slideDown 0.3s ease forwards; }
+  @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  .search-hidden { display: none !important; }
+  /* Botón de volver */
+  .back-search {
+    margin-top: 12px;
+    display: flex;
+    justify-content: center;
+  }
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border: 1px solid rgba(180,140,60,0.5);
+    border-radius: 3px;
+    background: rgba(180,140,60,0.1);
+    color: #e8c96a;
+    cursor: pointer;
+    transition: all 0.2s;
+    animation: fadeIn 0.3s ease;
+  }
+  .back-btn:hover {
+    background: rgba(180,140,60,0.2);
+    border-color: #b48c3c;
+    transform: translateY(-1px);
+  }
+  .back-btn svg {
+    width: 12px; height: 12px;
+    fill: currentColor;
+  }
 </style>
 </head>
 <body>
 
 <div id="search-panel">
   <div class="game-logo">⬡ Predecessor Stats · Split Actualizado</div>
-  <div class="search-row">
+  <div class="search-row" id="search-row">
     <input type="text" id="player-input" placeholder="UUID de pred.gg..." autocomplete="off" />
     <button id="search-btn">Buscar</button>
   </div>
@@ -205,6 +238,15 @@
       <div class="section-label" style="padding:10px 0 6px;">Últimas 5 partidas</div>
       <div class="match-list" id="match-list"></div>
     </div>
+
+    <div class="back-search">
+      <button class="back-btn" id="back-btn">
+        <svg viewBox="0 0 24 24">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Volver a buscar
+      </button>
+    </div>
   </div>
 </div>
 
@@ -227,15 +269,15 @@ async function searchPlayer() {
   const input = $('player-input').value.trim();
   if (!input) return;
 
-  const btn    = $('search-btn');
+  const btn = $('search-btn');
   const status = $('status-msg');
-  const card   = $('player-card');
-  const err    = $('error-msg');
+  const card = $('player-card');
+  const err = $('error-msg');
 
   btn.disabled = true;
   card.style.display = 'none';
-  err.style.display  = 'none';
-  status.innerHTML   = '<span class="loading-dots">Cargando datos actualizados</span>';
+  err.style.display = 'none';
+  status.innerHTML = '<span class="loading-dots">Cargando datos actualizados</span>';
 
   try {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
@@ -290,9 +332,6 @@ async function searchPlayer() {
     $('stat-kda').textContent = kda;
     $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
 
-    // ✅ PS Prom. eliminado: no se asigna a ningún elemento
-    // $('stat-ps').textContent = '—'; // ← Comentado
-
     // Héroes favoritos (últimas 5 partidas)
     const heroList = $('hero-list');
     heroList.innerHTML = '';
@@ -346,9 +385,10 @@ async function searchPlayer() {
 
     status.textContent = '';
     card.style.display = 'block';
-    card.classList.remove('fade-in');
+    card.classList.remove('fade-in', 'slide-down');
+    card.classList.add('fade-in', 'slide-up');
     void card.offsetWidth;
-    card.classList.add('fade-in');
+    card.classList.add('fade-in', 'slide-up');
 
   } catch (e) {
     status.textContent = '';
@@ -359,10 +399,39 @@ async function searchPlayer() {
   }
 }
 
+// ✅ NUEVA FUNCIÓN: volver al buscador
+function resetSearch() {
+  const searchRow = $('search-row');
+  const card = $('player-card');
+
+  // Ocultar tarjeta con animación
+  card.classList.remove('slide-up', 'fade-in');
+  card.classList.add('slide-down');
+  setTimeout(() => {
+    card.style.display = 'none';
+  }, 300);
+
+  // Mostrar buscador con animación
+  searchRow.classList.remove('search-hidden');
+  searchRow.classList.add('slide-down');
+  setTimeout(() => {
+    searchRow.classList.remove('slide-down');
+    $('player-input').value = '';
+    $('player-input').focus();
+  }, 350);
+
+  // Limpiar estado
+  $('error-msg').style.display = 'none';
+  $('status-msg').textContent = '';
+}
+
 document.getElementById('search-btn').onclick = searchPlayer;
 document.getElementById('player-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') searchPlayer();
 });
+
+// ✅ Añadir evento al botón de volver
+document.getElementById('back-btn').onclick = resetSearch;
 </script>
 </body>
 </html>
