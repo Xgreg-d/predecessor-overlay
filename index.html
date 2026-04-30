@@ -70,7 +70,15 @@
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   #status-msg { font-size: 11px; color: rgba(232,224,208,0.4); margin-top: 8px; min-height: 14px; }
   #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
-  #player-card { display: none; margin-top: 10px; background: rgba(8,12,18,0.95); border: 1px solid rgba(180,140,60,0.25); border-radius: 4px; overflow: hidden; transition: all 0.4s ease; }
+  #player-card { 
+    display: none; 
+    margin-top: 10px; 
+    background: rgba(8,12,18,0.95); 
+    border: 1px solid rgba(180,140,60,0.25); 
+    border-radius: 4px; 
+    overflow: hidden; 
+    transition: all 0.4s ease; 
+  }
   .card-header { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(180,140,60,0.07); border-bottom: 1px solid rgba(180,140,60,0.15); }
   .avatar {
     width: 40px; height: 40px;
@@ -143,17 +151,32 @@
   @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
   .fade-in { animation: fadeIn 0.4s ease forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  /* ✅ Animaciones de toggle */
+  /* ✅ Animaciones de toggle y pop */
+  .search-hidden { display: none !important; }
   .slide-up { animation: slideUp 0.3s ease forwards; }
   .slide-down { animation: slideDown 0.3s ease forwards; }
+  .pop-in { 
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+    display: block !important; /* ← Clave: se muestra antes de animar */
+  }
+  .pop-out { animation: popOut 0.3s ease forwards; }
   @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
   @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-  .search-hidden { display: none !important; }
+  @keyframes popIn { 
+    0% { opacity: 0; transform: scale(0.9) translateY(10px); }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes popOut { 
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.85); }
+  }
   /* Botón de volver */
   .back-search {
     margin-top: 12px;
     display: flex;
     justify-content: center;
+    animation: fadeIn 0.3s ease;
   }
   .back-btn {
     display: flex;
@@ -168,7 +191,6 @@
     color: #e8c96a;
     cursor: pointer;
     transition: all 0.2s;
-    animation: fadeIn 0.3s ease;
   }
   .back-btn:hover {
     background: rgba(180,140,60,0.2);
@@ -275,7 +297,6 @@ async function searchPlayer() {
   const err = $('error-msg');
 
   btn.disabled = true;
-  card.style.display = 'none';
   err.style.display = 'none';
   status.innerHTML = '<span class="loading-dots">Cargando datos actualizados</span>';
 
@@ -384,11 +405,23 @@ async function searchPlayer() {
     }
 
     status.textContent = '';
+    
+    // ✅ CORRECCIÓN CLAVE: Seleccionar buscador y tarjeta
+    const searchRow = $('search-row');
+    
+    // 1. Ocultar buscador con slide-up
+    searchRow.classList.add('slide-up');
+    setTimeout(() => {
+      searchRow.classList.add('search-hidden');
+      searchRow.classList.remove('slide-up');
+    }, 300);
+
+    // 2. Mostrar tarjeta con pop-in
     card.style.display = 'block';
-    card.classList.remove('fade-in', 'slide-down');
-    card.classList.add('fade-in', 'slide-up');
-    void card.offsetWidth;
-    card.classList.add('fade-in', 'slide-up');
+    card.classList.add('pop-in');
+    void card.offsetWidth; // Forzar reflow
+    card.classList.remove('pop-in');
+    card.classList.add('fade-in');
 
   } catch (e) {
     status.textContent = '';
@@ -404,14 +437,15 @@ function resetSearch() {
   const searchRow = $('search-row');
   const card = $('player-card');
 
-  // Ocultar tarjeta con animación
-  card.classList.remove('slide-up', 'fade-in');
-  card.classList.add('slide-down');
+  // Ocultar tarjeta con pop-out
+  card.classList.remove('fade-in');
+  card.classList.add('pop-out');
   setTimeout(() => {
+    card.classList.remove('pop-out');
     card.style.display = 'none';
   }, 300);
 
-  // Mostrar buscador con animación
+  // Mostrar buscador con slide-down
   searchRow.classList.remove('search-hidden');
   searchRow.classList.add('slide-down');
   setTimeout(() => {
