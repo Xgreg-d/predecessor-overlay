@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predecessor Stats · Perfil Actualizado</title>
+<title>Predecessor Stats · Split Actualizado</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -155,7 +155,7 @@
 <body>
 
 <div id="search-panel">
-  <div class="game-logo">⬡ Predecessor Stats · Actualizado</div>
+  <div class="game-logo">⬡ Predecessor Stats · Split Actualizado</div>
   <div class="search-row">
     <input type="text" id="player-input" placeholder="UUID de pred.gg..." autocomplete="off" />
     <button id="search-btn">Buscar</button>
@@ -204,7 +204,7 @@
     <div class="divider"></div>
 
     <div class="heroes-section">
-      <div class="section-label">Héroes recientes</div>
+      <div class="section-label">Héroes favoritos (Split)</div>
       <div class="hero-list" id="hero-list"></div>
     </div>
 
@@ -226,129 +226,138 @@ const ROLE_MAP = {
   CARRY: 'Carry', SUPPORT: 'Support'
 };
 
-// ✅ Datos *de las últimas 5 partidas* (no histórico)
-async function loadRecentStats(uuid) {
-  const [statsRes, matchesRes] = await Promise.all([
-    fetch(`${WORKER_URL}/stats?uuid=${uuid}`, { headers: { 'Accept': 'application/json' } }).then(r => r.ok ? r.json() : {}),
-    fetch(`${WORKER_URL}/matches?uuid=${uuid}`, { headers: { 'Accept': 'application/json' } }).then(r => r.ok ? r.json() : {})
-  ]);
-
-  const player = statsRes?.data?.player;
-  const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
-
-  // Calcular stats recientes (de las últimas 5)
-  let wins = 0, losses = 0;
-  let totalK = 0, totalD = 0, totalA = 0;
-
-  matchesData.forEach(match => {
-    const me = match.matchPlayers?.find(p => p.player?.uuid === uuid) || match.matchPlayers?.[0] || {};
-    if (match.match?.winningTeam === (me.team || 0)) wins++;
-    else losses++;
-    totalK += me.kills || 0;
-    totalD += me.deaths || 0;
-    totalA += me.assists || 0;
-  });
-
-  const total = wins + losses;
-  const wr = total > 0 ? (wins / total * 100).toFixed(1) : 0;
-  const kda = totalD > 0 ? ((totalK + totalA) / totalD).toFixed(2) : '0.00';
-
-  // Actualizar UI con stats *recientes*
-  const name = player?.name || 'Desconocido';
-  const region = (player?.favRegion || '—')
-    .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
-    .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
-  const rank = player?.ratings?.rank?.name || '—';
-  const vp = player?.ratings?.points || 0;
-
-  $('display-name').textContent = name;
-  $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
-  $('display-rank').textContent = rank;
-  $('display-region').textContent = region;
-  $('display-vp').textContent = vp.toLocaleString();
-
-  const statMatches = $('stat-matches');
-  statMatches.textContent = total.toLocaleString();
-  statMatches.className = 'stat-value neutral';
-
-  const wrEl = $('stat-winrate');
-  wrEl.textContent = wr + '%';
-  wrEl.className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
-
-  const kdaEl = $('stat-kda');
-  kdaEl.textContent = kda;
-  kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
-
-  $('stat-ps').textContent = '—';
-
-  // Héroes favoritos (basados en las últimas 5)
-  const heroList = $('hero-list');
-  heroList.innerHTML = '';
-  if (matchesData.length === 0) {
-    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos</div>';
-  } else {
-    const heroCounts = {};
-    matchesData.forEach(m => {
-      const hero = m.matchPlayers?.[0]?.hero?.data?.displayName || 'Héroe';
-      heroCounts[hero] = (heroCounts[hero] || 0) + 1;
-    });
-    const sortedHeroes = Object.entries(heroCounts)
-      .sort((a,b) => b[1] - a[1])
-      .slice(0,4);
-
-    sortedHeroes.forEach(([name, count]) => {
-      heroList.innerHTML += `
-        <div class="hero-row">
-          <div class="hero-name">${name}</div>
-          <div class="hero-bar-wrap" style="flex:1">
-            <div class="hero-bar" style="width:${(count/5)*100}%"></div>
-          </div>
-          <div class="hero-wr">${count}p</div>
-        </div>`;
-    });
-  }
-
-  // Últimas 5 partidas
-  const matchList = $('match-list');
-  matchList.innerHTML = '';
-  matchesData.slice(0,5).forEach(m => {
-    const match = m.match || {};
-    const me = m.matchPlayers?.[0] || {};
-    const won = match.winningTeam === (me.team || 0);
-    const hero = me.hero?.data?.displayName || '—';
-    const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
-    matchList.innerHTML += `
-      <div class="match-row">
-        <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
-        <div class="match-hero">${hero}</div>
-        <div class="match-kda">${k}/${d}/${a}</div>
-        <div class="match-role">—</div>
-      </div>`;
-  });
+async function apiGet(path) {
+  const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
 }
 
 async function searchPlayer() {
   const input = $('player-input').value.trim();
   if (!input) return;
 
-  const btn = $('search-btn');
+  const btn    = $('search-btn');
   const status = $('status-msg');
-  const card = $('player-card');
-  const err = $('error-msg');
+  const card   = $('player-card');
+  const err    = $('error-msg');
 
   btn.disabled = true;
   card.style.display = 'none';
-  err.style.display = 'none';
-  status.innerHTML = '<span class="loading-dots">Cargando datos actualizados</span>';
+  err.style.display  = 'none';
+  status.innerHTML   = '<span class="loading-dots">Cargando datos actualizados</span>';
 
   try {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
     if (!isUUID) {
-      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg (ej: 550e8400-e29b...)');
+      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg (ej: 550e8400-e29b...).');
     }
 
     const uuid = input;
-    await loadRecentStats(uuid);
+
+    // ✅ Cargar datos del perfil + últimas 5 partidas
+    const [statsRes, matchesRes] = await Promise.all([
+      apiGet(`/stats?uuid=${uuid}`),
+      apiGet(`/matches?uuid=${uuid}`)
+    ]);
+
+    const player = statsRes?.data?.player;
+    const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
+
+    if (!player) throw new Error('Jugador no encontrado — usa tu UUID de pred.gg');
+
+    // 1️⃣ Datos del perfil (de /stats)
+    const name    = player.name || 'Desconocido';
+    const region  = (player.favRegion || '—')
+      .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
+      .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
+    const rank    = player.ratings?.rank?.name || '—';
+    const vp      = player.ratings?.points || 0;
+
+    $('display-name').textContent    = name;
+    $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
+    $('display-rank').textContent    = rank;
+    $('display-region').textContent  = region;
+    $('display-vp').textContent      = vp.toLocaleString();
+
+    // 2️⃣ Calcular stats *recientes* (últimas 5 partidas)
+    let wins = 0, losses = 0;
+    let totalK = 0, totalD = 0, totalA = 0;
+
+    matchesData.forEach(m => {
+      const me = m.matchPlayers?.[0] || {};
+      if (m.match?.winningTeam === (me.team || 0)) wins++;
+      else losses++;
+      totalK += me.kills || 0;
+      totalD += me.deaths || 0;
+      totalA += me.assists || 0;
+    });
+
+    const totalMatches = wins + losses;
+    const wr = totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : 0;
+    const kda = totalD > 0 ? ((totalK + totalA) / totalD).toFixed(2) : '0.00';
+
+    const statMatches = $('stat-matches');
+    statMatches.textContent = totalMatches.toLocaleString();
+    statMatches.className = 'stat-value neutral';
+
+    const wrEl = $('stat-winrate');
+    wrEl.textContent = wr + '%';
+    wrEl.className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
+
+    const kdaEl = $('stat-kda');
+    kdaEl.textContent = kda;
+    kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+
+    $('stat-ps').textContent = '—';
+
+    // 3️⃣ Héroes favoritos (de /stats)
+    const heroList = $('hero-list');
+    heroList.innerHTML = '';
+    const heroes = (player.heroStatistics?.results || [])
+      .sort((a,b) => (b.matchesPlayed||0) - (a.matchesPlayed||0))
+      .slice(0,4);
+    const maxGames = heroes[0]?.matchesPlayed || 1;
+
+    if (heroes.length === 0) {
+      heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos</div>';
+    } else {
+      heroes.forEach(h => {
+        const hName = h.hero?.data?.displayName || 'Héroe';
+        const hMatches = h.matchesPlayed || 0;
+        const hWins = h.matchesWon || 0;
+        const hWR = hMatches > 0 ? (hWins / hMatches * 100) : 0;
+        const barW = Math.round((hMatches / maxGames) * 100);
+        heroList.innerHTML += `
+          <div class="hero-row">
+            <div class="hero-name">${hName}</div>
+            <div class="hero-bar-wrap"><div class="hero-bar" style="width:${barW}%"></div></div>
+            <div class="hero-wr">${hWR.toFixed(0)}%</div>
+            <div class="hero-matches">${hMatches}p</div>
+          </div>`;
+      });
+    }
+
+    // 4️⃣ Últimas 5 partidas (de /matches)
+    const matchList = $('match-list');
+    matchList.innerHTML = '';
+    if (matchesData.length === 0) {
+      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
+    } else {
+      matchesData.slice(0,5).forEach(m => {
+        const match = m.match || {};
+        const me = m.matchPlayers?.[0] || {};
+        const won = match.winningTeam === (me.team || 0);
+        const hero = me.hero?.data?.displayName || '—';
+        const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
+        matchList.innerHTML += `
+          <div class="match-row">
+            <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
+            <div class="match-hero">${hero}</div>
+            <div class="match-kda">${k}/${d}/${a}</div>
+            <div class="match-role">—</div>
+          </div>`;
+      });
+    }
 
     status.textContent = '';
     card.style.display = 'block';
@@ -360,13 +369,51 @@ async function searchPlayer() {
     if (window.refreshInterval) clearInterval(window.refreshInterval);
     window.refreshInterval = setInterval(async () => {
       try {
-        await loadRecentStats(uuid);
+        const [sRes, mRes] = await Promise.all([
+          apiGet(`/stats?uuid=${uuid}`),
+          apiGet(`/matches?uuid=${uuid}`)
+        ]);
+        // Actualizar stats recientes
+        const mData = mRes?.data?.player?.matchesPaginated?.results || [];
+        let wins = 0, losses = 0, k = 0, d = 0, a = 0;
+        mData.forEach(m => {
+          const me = m.matchPlayers?.[0] || {};
+          if (m.match?.winningTeam === (me.team || 0)) wins++;
+          else losses++;
+          k += me.kills || 0; d += me.deaths || 0; a += me.assists || 0;
+        });
+        const total = wins + losses;
+        const wr = total > 0 ? (wins / total * 100).toFixed(1) : 0;
+        const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
+
+        $('stat-winrate').textContent = wr + '%';
+        $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
+
+        $('stat-kda').textContent = kda;
+        $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+
+        $('match-list').innerHTML = '';
+        mData.slice(0,5).forEach(m => {
+          const match = m.match || {};
+          const me = m.matchPlayers?.[0] || {};
+          const won = match.winningTeam === (me.team || 0);
+          const hero = me.hero?.data?.displayName || '—';
+          const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
+          $('match-list').innerHTML += `
+            <div class="match-row">
+              <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
+              <div class="match-hero">${hero}</div>
+              <div class="match-kda">${k_}/${d_}/${a_}</div>
+              <div class="match-role">—</div>
+            </div>`;
+        });
+
       } catch (e) {
-        console.warn("Refresco automático fallido:", e);
+        console.warn("Refresco fallido:", e);
       }
     }, 15000);
 
-    status.innerHTML = `<span style="color:#7ec87a">✔ Datos actualizados (últimas 5 partidas)</span>`;
+    status.innerHTML = `<span style="color:#7ec87a">✔ Datos actualizados (últimos 5 matches)</span>`;
     document.getElementById('live-badge').style.display = 'inline-block';
 
   } catch (e) {
