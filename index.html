@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Predecessor Stats Overlay</title>
+<title>Predecessor Stats Overlay · Match en Vivo</title>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -276,14 +276,37 @@
     from { opacity: 0; transform: translateY(4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+
+  /* 🟢 Estado "Match en vivo" */
+  .live-badge {
+    display: inline-block;
+    background: #e87a4a;
+    color: white;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .match-ended {
+    animation: pulseRed 0.8s infinite;
+  }
+
+  @keyframes pulseRed {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
 </style>
 </head>
 <body>
 
 <div id="search-panel">
-  <div class="game-logo">⬡ Predecessor Stats · pred.gg</div>
+  <div class="game-logo">⬡ Predecessor Stats · Match en Vivo</div>
   <div class="search-row">
-    <input type="text" id="player-input" placeholder="UUID o nombre (pred.gg)..." autocomplete="off" />
+    <input type="text" id="player-input" placeholder="UUID de pred.gg (match en curso)" autocomplete="off" />
     <button id="search-btn">Buscar</button>
   </div>
   <div id="status-msg"></div>
@@ -291,14 +314,15 @@
 
   <div id="player-card">
     <div class="card-header">
-      <div class="avatar" id="avatar-initials">??</div>
+      <div class="avatar" id="avatar-initials">MV</div>
       <div>
-        <div class="player-name" id="display-name">—</div>
+        <div class="player-name" id="display-name">Match en curso</div>
         <div class="rank-badge">
           <span class="rank-dot"></span>
           <span id="display-rank">—</span>
           <span style="color:rgba(232,224,208,0.2)">·</span>
           <span id="display-region">—</span>
+          <span id="live-badge" class="live-badge">EN VIVO</span>
         </div>
       </div>
       <div style="margin-left:auto; text-align:right;">
@@ -309,19 +333,19 @@
 
     <div class="stats-grid">
       <div class="stat-cell">
-        <div class="stat-label">Partidas</div>
-        <div class="stat-value neutral" id="stat-matches">—</div>
+        <div class="stat-label">KDA</div>
+        <div class="stat-value neutral" id="stat-kda">—</div>
       </div>
       <div class="stat-cell">
         <div class="stat-label">Winrate</div>
         <div class="stat-value" id="stat-winrate">—</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-label">KDA</div>
-        <div class="stat-value neutral" id="stat-kda">—</div>
+        <div class="stat-label">Partidas</div>
+        <div class="stat-value neutral" id="stat-matches">—</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-label">PS Prom.</div>
+        <div class="stat-label">Damage</div>
         <div class="stat-value neutral" id="stat-ps">—</div>
       </div>
     </div>
@@ -329,14 +353,14 @@
     <div class="divider"></div>
 
     <div class="heroes-section">
-      <div class="section-label">Héroes favoritos</div>
+      <div class="section-label">Héroe actual</div>
       <div class="hero-list" id="hero-list"></div>
     </div>
 
     <div class="divider"></div>
 
     <div class="recent-section">
-      <div class="section-label" style="padding:10px 0 6px;">Partidas recientes</div>
+      <div class="section-label" style="padding:10px 0 6px;">Resultado actual</div>
       <div class="match-list" id="match-list"></div>
     </div>
   </div>
@@ -346,165 +370,152 @@
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
 
-const ROLE_MAP = {
-  OFFLANE: 'Offlane', JUNGLE: 'Jungle', MIDLANE: 'Mid',
-  CARRY: 'Carry', SUPPORT: 'Support'
-};
+// 🟢 Globales para estado de match
+let lastLoadedMatchId = null;
+let autoRefreshInterval = null;
+let isMatchFinished = false;
 
-async function apiGet(path) {
-  const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
+// 🔁 Función para recargar datos del match actual
+async function loadMatchProgress(uuid) {
+  const res = await fetch(`${WORKER_URL}/match-progress?uuid=${uuid}`, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  const data = await res.json();
+
+  const matchList = data?.data?.player?.matchesPaginated?.results || [];
+  if (matchList.length === 0) throw new Error("No se encontró partida reciente");
+
+  const matchData = matchList[0]?.match || {};
+  const me = matchList[0]?.matchPlayers?.find(p => p.player?.uuid === uuid) || matchList[0]?.matchPlayers?.[0] || {};
+  const isFinished = !!matchData.gameFinished;
+
+  // Actualizar UI
+  $('display-name').textContent = 'En vivo (Match actual)';
+  $('display-vp').textContent = me.rating?.newPoints || me.rating?.points || '—';
+  $('display-rank').textContent = '—';
+  $('display-region').textContent = matchData.region || '—';
+
+  // Calcular KDA en vivo
+  const k = me.kills || 0;
+  const d = me.deaths || 1;
+  const a = me.assists || 0;
+  const kda = ((k + a) / d).toFixed(2);
+
+  const kdaEl = $('stat-kda');
+  kdaEl.textContent = `${k}/${d}/${a} (KDA: ${kda})`;
+  kdaEl.className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+
+  // Winrate en vivo: hasta que termine
+  const win = matchData.winningTeam === (me.team || 0) && isFinished;
+  const wr = isFinished ? (win ? 100 : 0) : '—';
+  const wrEl = $('stat-winrate');
+
+  if (isFinished) {
+    const result = win ? 'VICTORIA' : 'DERROTA';
+    const className = win ? 'good' : 'warn';
+    wrEl.textContent = result;
+    wrEl.className = `stat-value ${className} match-ended`;
+    
+    // Detener refresco y cambiar badge
+    clearInterval(autoRefreshInterval);
+    $('live-badge').textContent = 'TERMINADO';
+    $('live-badge').style.background = win ? '#7ec87a' : '#e87a4a';
+    $('live-badge').style.color = 'white';
+    $('display-name').textContent = 'Match terminado';
+  } else {
+    wrEl.textContent = '—';
+    wrEl.className = 'stat-value neutral';
+  }
+
+  $('stat-matches').textContent = '1';
+  $('stat-ps').textContent = '—'; // sin datos de damage en este nivel
+
+  // Héroe actual
+  const heroName = me.hero?.data?.displayName || '—';
+  $('hero-list').innerHTML = `
+    <div class="hero-row">
+      <div class="hero-name">${heroName}</div>
+      <div class="hero-bar-wrap" style="flex:1">
+        <div class="hero-bar" style="width:100%"></div>
+      </div>
+      <div class="hero-wr">${isFinished ? (win ? 'V' : 'D') : '—'}</div>
+      <div class="hero-matches">—</div>
+    </div>`;
+
+  // Resultado actual
+  $('match-list').innerHTML = `
+    <div class="match-row">
+      <div class="match-result ${!isFinished ? '' : (win ? 'win' : 'loss')}">
+        ${isFinished ? (win ? 'V' : 'D') : 'EN CURSO'}
+      </div>
+      <div class="match-hero">${heroName}</div>
+      <div class="match-kda">${k}/${d}/${a}</div>
+      <div class="match-role">${isFinished ? (win ? 'Victoria' : 'Derrota') : 'Match en curso'}</div>
+    </div>`;
+
+  // Guardar estado
+  lastLoadedMatchId = matchData.id;
+  isMatchFinished = isFinished;
 }
 
+// 🟢 Nueva función searchPlayer (solo UUID)
 async function searchPlayer() {
   const input = $('player-input').value.trim();
   if (!input) return;
 
-  const btn    = $('search-btn');
+  const btn = $('search-btn');
   const status = $('status-msg');
-  const card   = $('player-card');
-  const err    = $('error-msg');
+  const card = $('player-card');
+  const err = $('error-msg');
 
   btn.disabled = true;
   card.style.display = 'none';
-  err.style.display  = 'none';
-  status.innerHTML   = '<span class="loading-dots">Cargando stats</span>';
+  err.style.display = 'none';
+  status.innerHTML = '<span class="loading-dots">Cargando datos de match...</span>';
 
   try {
-    // ✅ Acepta UUID directo o nombre
+    // ✅Solo UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input);
-    
-    let uuid;
-    if (isUUID) {
-      uuid = input;
-    } else {
-      // ✅ Usa /search (ya existe en worker)
-      const searchRes = await apiGet(`/search?name=${encodeURIComponent(input)}`);
-      const playerList = searchRes?.data?.playersPaginated?.results;
-      if (!playerList || playerList.length === 0) {
-        throw new Error('Jugador no encontrado — usa tu UUID de pred.gg o revisa el nombre');
-      }
-
-      // Elige coincidencia exacta primero (case-insensitive)
-      const exactMatch = playerList.find(p => p.name.toLowerCase() === input.toLowerCase());
-      uuid = exactMatch?.uuid || playerList[0].uuid;
+    if (!isUUID) {
+      throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg (ej: 550e8400-e29b-41d4-a716-446655440000)');
     }
 
-    const [statsRes, matchesRes] = await Promise.all([
-      apiGet(`/stats?uuid=${uuid}`),
-      apiGet(`/matches?uuid=${uuid}`)
-    ]);
+    const uuid = input;
 
-    renderCard(statsRes?.data?.player, matchesRes?.data?.player);
+    // Cargar match actual
+    await loadMatchProgress(uuid);
+
     status.textContent = '';
     card.style.display = 'block';
     card.classList.remove('fade-in');
     void card.offsetWidth;
     card.classList.add('fade-in');
 
+    // 🟢 Si match NO terminó: auto-refrescar cada 15s
+    if (!isMatchFinished) {
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = setInterval(async () => {
+        try {
+          await loadMatchProgress(uuid);
+        } catch (e) {
+          console.warn("Refresco automático fallido:", e);
+        }
+      }, 15000);
+      status.innerHTML = `<span style="color:#7ec87a">✔ Match en curso (ID: ${lastLoadedMatchId.slice(0,8)}...)</span>`;
+    } else {
+      status.innerHTML = `<span style="color:#e87a4a">✔ Match terminado. Resultado: ${isMatchFinished ? (document.getElementById('stat-winrate').textContent) : '—'}</span>`;
+    }
+
   } catch (e) {
     status.textContent = '';
-    err.style.display  = 'block';
+    err.style.display = 'block';
     err.textContent = '✕ ' + e.message.slice(0, 100);
   } finally {
     btn.disabled = false;
   }
 }
 
-function renderCard(player, matchesPlayer) {
-  if (!player) throw new Error('Sin datos del jugador');
-
-  const name    = player.name || 'Desconocido';
-  const region  = (player.favRegion || '—')
-    .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
-    .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
-  const rank    = player.ratings?.rank?.name || '—';
-  const vp      = player.ratings?.points || 0;
-  const stats   = player.generalStatistic?.result || {};
-
-  $('display-name').textContent    = name;
-  $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
-  $('display-rank').textContent    = rank;
-  $('display-region').textContent  = region;
-  $('display-vp').textContent      = vp.toLocaleString();
-
-  const totalMatches = stats.matchesPlayed || 0;
-  const wins         = stats.matchesWon || 0;
-  const wr           = totalMatches > 0 ? (wins / totalMatches * 100) : 0;
-  const kills        = stats.totalKills || 0;
-  const deaths       = stats.totalDeaths || 1;
-  const assists      = stats.totalAssists || 0;
-  const kda          = ((kills + assists) / Math.max(deaths, 1)).toFixed(2);
-
-  $('stat-matches').textContent = totalMatches.toLocaleString();
-
-  const wrEl = $('stat-winrate');
-  wrEl.textContent = wr.toFixed(1) + '%';
-  wrEl.className   = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
-
-  const kdaEl = $('stat-kda');
-  kdaEl.textContent = kda;
-  kdaEl.className   = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
-
-  $('stat-ps').textContent = '—';
-
-  // Héroes favoritos
-  const heroList = $('hero-list');
-  heroList.innerHTML = '';
-  const heroes = (player.heroStatistics?.results || [])
-    .sort((a,b) => (b.matchesPlayed||0) - (a.matchesPlayed||0))
-    .slice(0,4);
-  const maxGames = heroes[0]?.matchesPlayed || 1;
-
-  if (heroes.length === 0) {
-    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos</div>';
-  } else {
-    heroes.forEach(h => {
-      const hName    = h.hero?.data?.displayName || 'Héroe';
-      const hMatches = h.matchesPlayed || 0;
-      const hWins    = h.matchesWon || 0;
-      const hWR      = hMatches > 0 ? (hWins / hMatches * 100) : 0;
-      const barW     = Math.round((hMatches / maxGames) * 100);
-      heroList.innerHTML += `
-        <div class="hero-row">
-          <div class="hero-name">${hName}</div>
-          <div class="hero-bar-wrap"><div class="hero-bar" style="width:${barW}%"></div></div>
-          <div class="hero-wr">${hWR.toFixed(0)}%</div>
-          <div class="hero-matches">${hMatches}p</div>
-        </div>`;
-    });
-  }
-
-  // Partidas recientes
-  const matchList = $('match-list');
-  matchList.innerHTML = '';
-  const recentMatches = matchesPlayer?.matchesPaginated?.results || [];
-
-  if (recentMatches.length === 0) {
-    matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
-  } else {
-    recentMatches.slice(0,5).forEach(r => {
-      const match = r.match || {};
-      const me    = (r.matchPlayers || []).find(p => p.player?.name === player.name) || r.matchPlayers?.[0] || {};
-      const won   = match.winningTeam === me.team;
-      const hero  = me.hero?.data?.displayName || '—';
-      const role  = ROLE_MAP[me.role] || me.role || '—';
-      const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
-      matchList.innerHTML += `
-        <div class="match-row">
-          <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
-          <div class="match-hero">${hero}</div>
-          <div class="match-kda">${k}/${d}/${a}</div>
-          <div class="match-role">${role}</div>
-        </div>`;
-    });
-  }
-}
-
-// Botón y Enter
-const searchBtn = $('search-btn');
-searchBtn.onclick = searchPlayer;
+// Eventos
+document.getElementById('search-btn').onclick = searchPlayer;
 document.getElementById('player-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') searchPlayer();
 });
