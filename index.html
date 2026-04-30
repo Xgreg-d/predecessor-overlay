@@ -18,7 +18,7 @@
     background: rgba(10, 14, 20, 0.92);
     border: 1px solid rgba(180, 140, 60, 0.4);
     border-radius: 4px;
-    padding: 14px 14px;
+    padding: 14px 16px;
     backdrop-filter: blur(12px);
     box-shadow: 0 4px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(180,140,60,0.15);
     position: relative;
@@ -82,9 +82,18 @@
   }
   .rank-badge { font-size: 11px; color: rgba(232,224,208,0.5); letter-spacing: 1px; margin-top: 3px; display: flex; align-items: center; gap: 6px; }
   .rank-dot { width: 6px; height: 6px; border-radius: 50%; background: #b48c3c; display: inline-block; }
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
-  .stat-cell { padding: 10px 8px; text-align: center; border-right: 1px solid rgba(180,140,60,0.1); border-bottom: 1px solid rgba(180,140,60,0.1); }
-  .stat-cell:nth-child(4) { border-right: none; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* ← CAMBIO: 3 columnas en lugar de 4 */
+    gap: 0; /* Espacio entre celdas */
+  }
+  .stat-cell {
+    padding: 10px 8px;
+    text-align: center;
+    border-bottom: 1px solid rgba(180,140,60,0.1);
+    border-right: 1px solid rgba(180,140,60,0.1);
+  }
+  .stat-cell:nth-child(3) { border-right: none; } /* ← CAMBIO: última celda no tiene borde derecho */
   .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(232,224,208,0.35); margin-bottom: 4px; }
   .stat-value {
     font-family: 'Rajdhani', sans-serif;
@@ -181,10 +190,6 @@
         <div class="stat-label">KDA</div>
         <div class="stat-value neutral" id="stat-kda">—</div>
       </div>
-      <div class="stat-cell">
-        <div class="stat-label">PS Prom.</div>
-        <div class="stat-value neutral" id="stat-ps">—</div>
-      </div>
     </div>
 
     <div class="divider"></div>
@@ -245,14 +250,13 @@ async function searchPlayer() {
     const player = statsRes?.data?.player;
     if (!player) throw new Error('Jugador no encontrado — revisa el UUID');
 
-    // ✅ DATOS ACTUALIZADOS CON base EN TU JSON (ratings como ARRAY)
+    // Datos actuales (ratings como array)
     const name = player.name || 'Desconocido';
     const region = (player.favRegion || '—')
       .replace('NA', 'NA').replace('NA_EAST', 'NA East')
       .replace('NA_WEST', 'NA West').replace('EUROPE', 'Europe')
       .replace('OCE', 'Oceania').replace('SA', 'Latam');
 
-    // 🚀 Leer el ÚLTIMO rango de la lista (el actual)
     const lastRating = player.ratings?.[player.ratings.length - 1] || {};
     const rank = lastRating.rank?.name || lastRating.rank?.tierName || '—';
     const vp = lastRating.points || 0;
@@ -263,7 +267,7 @@ async function searchPlayer() {
     $('display-region').textContent = region;
     $('display-vp').textContent = vp.toLocaleString();
 
-    // ✅ STATS RECIENTES (últimas 5 partidas)
+    // Stats recientes (últimas 5 partidas)
     const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
     let wins = 0, losses = 0, k = 0, d = 0, a = 0;
     matchesData.forEach(m => {
@@ -277,16 +281,19 @@ async function searchPlayer() {
     const wr = totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : 0;
     const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
 
-    $('stat-matches').textContent = totalMatches.toLocaleString();
+    const matchCount = matchesData.length > 0 ? 5 : 0;
+    $('stat-matches').textContent = matchCount.toLocaleString();
+
     $('stat-winrate').textContent = wr + '%';
     $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
 
     $('stat-kda').textContent = kda;
     $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
 
-    $('stat-ps').textContent = '—';
+    // ✅ PS Prom. eliminado: no se asigna a ningún elemento
+    // $('stat-ps').textContent = '—'; // ← Comentado
 
-    // ✅ Héroes favoritos (últimas 5 partidas)
+    // Héroes favoritos (últimas 5 partidas)
     const heroList = $('hero-list');
     heroList.innerHTML = '';
     if (matchesData.length === 0) {
@@ -301,19 +308,21 @@ async function searchPlayer() {
         .sort((a,b) => b[1] - a[1])
         .slice(0,4);
 
+      const maxGames = sortedHeroes[0]?.[1] || 1;
       sortedHeroes.forEach(([name, count]) => {
+        const barW = Math.round((count / maxGames) * 100);
         heroList.innerHTML += `
           <div class="hero-row">
             <div class="hero-name">${name}</div>
             <div class="hero-bar-wrap" style="flex:1">
-              <div class="hero-bar" style="width:${(count/5)*100}%"></div>
+              <div class="hero-bar" style="width:${barW}%"></div>
             </div>
             <div class="hero-wr">${count}p</div>
           </div>`;
       });
     }
 
-    // ✅ Últimas 5 partidas
+    // Últimas 5 partidas
     const matchList = $('match-list');
     matchList.innerHTML = '';
     if (matchesData.length === 0) {
