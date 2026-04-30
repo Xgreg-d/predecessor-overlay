@@ -343,24 +343,16 @@
 </div>
 
 <script>
-// ════════════════════════════════════════════════
-// ⚠️  PON AQUÍ TU URL DEL WORKER DE CLOUDFLARE
-//     Ejemplo: https://pred-proxy.tunombre.workers.dev
-// ════════════════════════════════════════════════
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
-
 const $ = id => document.getElementById(id);
 
 const ROLE_MAP = {
-  offlane: 'Offlane', jungle: 'Jungle', midlane: 'Mid',
-  carry: 'Carry', support: 'Support'
+  OFFLANE: 'Offlane', JUNGLE: 'Jungle', MIDLANE: 'Mid',
+  CARRY: 'Carry', SUPPORT: 'Support'
 };
 
-async function fetchJSON(path) {
-  // El worker reenvía directo: WORKER_URL/players?... → pred.gg/api/v1/players?...
-  const res = await fetch(WORKER_URL + path, {
-    headers: { 'Accept': 'application/json' }
-  });
+async function apiGet(path) {
+  const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -380,26 +372,23 @@ async function searchPlayer() {
   status.innerHTML   = '<span class="loading-dots">Buscando</span>';
 
   try {
-    const searchData = await fetchJSON(
-      `/players?filter[name]=${encodeURIComponent(name)}&filter[include_inactive]=0&filter[include_unranked]=1&page=1`
-    );
+    // 1. Buscar jugador por nombre
+    const searchRes = await apiGet(`/search?name=${encodeURIComponent(name)}`);
+    const results = searchRes?.data?.playersPaginated?.results;
+    if (!results || results.length === 0) throw new Error('Jugador no encontrado');
 
-    if (!searchData.data || searchData.data.length === 0) {
-      throw new Error('Jugador no encontrado');
-    }
-
-    const player   = searchData.data[0];
-    const playerId = player.id;
+    const player = results[0];
+    const uuid = player.uuid;
 
     status.innerHTML = '<span class="loading-dots">Cargando stats</span>';
 
-    const [statsData, heroStatsData, matchData] = await Promise.all([
-      fetchJSON(`/players/${playerId}`),
-      fetchJSON(`/players/${playerId}/hero-stats?time_frame=1M`),
-      fetchJSON(`/players/${playerId}/matches?per_page=5&time_frame=1M`)
+    // 2. Cargar stats y partidas en paralelo
+    const [statsRes, matchesRes] = await Promise.all([
+      apiGet(`/stats?uuid=${uuid}`),
+      apiGet(`/matches?uuid=${uuid}`)
     ]);
 
-    renderCard(player, statsData, heroStatsData, matchData);
+    renderCard(statsRes?.data?.player, matchesRes?.data?.player);
     status.textContent = '';
     card.style.display = 'block';
     card.classList.remove('fade-in');
@@ -417,14 +406,16 @@ async function searchPlayer() {
   }
 }
 
-function renderCard(playerBase, statsData, heroStatsData, matchData) {
-  const p    = statsData.data || playerBase;
-  const name = p.attributes?.name || playerBase.attributes?.name || 'Desconocido';
-  const rank = p.attributes?.rank_title || '—';
-  const region = (p.attributes?.region || '—')
-    .replace('naeast','NA East').replace('nawest','NA West')
-    .replace('eu','Europe').replace('oce','Oceania').replace('sa','Latam');
-  const vp = p.attributes?.victory_points || 0;
+function renderCard(player, matchesPlayer) {
+  if (!player) { throw new Error('Sin datos del jugador'); }
+
+  const name    = player.name || 'Desconocido';
+  const region  = (player.favRegion || '—')
+    .replace('NA_EAST','NA East').replace('NA_WEST','NA West')
+    .replace('EUROPE','Europe').replace('OCE','Oceania').replace('SA','Latam');
+  const rank    = player.ratings?.rank?.name || '—';
+  const vp      = player.ratings?.points || 0;
+  const stats   = player.generalStatistic?.result || {};
 
   $('display-name').textContent    = name;
   $('avatar-initials').textContent = name.slice(0,2).toUpperCase();
@@ -432,15 +423,13 @@ function renderCard(playerBase, statsData, heroStatsData, matchData) {
   $('display-region').textContent  = region;
   $('display-vp').textContent      = vp.toLocaleString();
 
-  const stats        = p.attributes?.stats || {};
-  const totalMatches = stats.matches_played || 0;
-  const wins         = stats.wins || 0;
+  const totalMatches = stats.matchesPlayed || 0;
+  const wins         = stats.matchesWon || 0;
   const wr           = totalMatches > 0 ? (wins / totalMatches * 100) : 0;
-  const kills        = stats.kills || 0;
-  const deaths       = stats.deaths || 1;
-  const assists      = stats.assists || 0;
+  const kills        = stats.totalKills || 0;
+  const deaths       = stats.totalDeaths || 1;
+  const assists      = stats.totalAssists || 0;
   const kda          = ((kills + assists) / Math.max(deaths, 1)).toFixed(2);
-  const ps           = (stats.average_performance_score || 0).toFixed(1);
 
   $('stat-matches').textContent = totalMatches.toLocaleString();
 
@@ -452,23 +441,23 @@ function renderCard(playerBase, statsData, heroStatsData, matchData) {
   kdaEl.textContent = kda;
   kdaEl.className   = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
 
-  $('stat-ps').textContent = ps;
+  $('stat-ps').textContent = '—';
 
-  // Héroes
+  // Héroes favoritos
   const heroList = $('hero-list');
   heroList.innerHTML = '';
-  const heroes   = (heroStatsData.data || [])
-    .sort((a,b) => (b.attributes?.matches_played||0) - (a.attributes?.matches_played||0))
+  const heroes = (player.heroStatistics?.results || [])
+    .sort((a,b) => (b.matchesPlayed||0) - (a.matchesPlayed||0))
     .slice(0,4);
-  const maxGames = heroes[0]?.attributes?.matches_played || 1;
+  const maxGames = heroes[0]?.matchesPlayed || 1;
 
   if (heroes.length === 0) {
-    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos recientes</div>';
+    heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos</div>';
   } else {
     heroes.forEach(h => {
-      const hName    = h.attributes?.hero_name || h.attributes?.name || 'Héroe';
-      const hMatches = h.attributes?.matches_played || 0;
-      const hWins    = h.attributes?.wins || 0;
+      const hName    = h.hero?.data?.displayName || 'Héroe';
+      const hMatches = h.matchesPlayed || 0;
+      const hWins    = h.matchesWon || 0;
       const hWR      = hMatches > 0 ? (hWins / hMatches * 100) : 0;
       const barW     = Math.round((hMatches / maxGames) * 100);
       heroList.innerHTML += `
@@ -482,19 +471,20 @@ function renderCard(playerBase, statsData, heroStatsData, matchData) {
   }
 
   // Partidas recientes
-  const matchList    = $('match-list');
+  const matchList = $('match-list');
   matchList.innerHTML = '';
-  const recentMatches = matchData.data || [];
+  const recentMatches = matchesPlayer?.matchesPaginated?.results || [];
 
   if (recentMatches.length === 0) {
     matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas recientes</div>';
   } else {
-    recentMatches.slice(0,5).forEach(m => {
-      const att  = m.attributes || {};
-      const won  = att.won;
-      const hero = att.hero_name || '—';
-      const role = ROLE_MAP[att.role] || att.role || '—';
-      const k = att.kills || 0, d = att.deaths || 0, a = att.assists || 0;
+    recentMatches.slice(0,5).forEach(r => {
+      const match   = r.match || {};
+      const me      = (r.matchPlayers || []).find(p => p.player?.name === player.name) || r.matchPlayers?.[0] || {};
+      const won     = match.winningTeam === me.team;
+      const hero    = me.hero?.data?.displayName || '—';
+      const role    = ROLE_MAP[me.role] || me.role || '—';
+      const k = me.kills||0, d = me.deaths||0, a = me.assists||0;
       matchList.innerHTML += `
         <div class="match-row">
           <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
