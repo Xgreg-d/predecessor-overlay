@@ -109,11 +109,10 @@
     text-overflow: ellipsis;
   }
 
-  /* ✅ INFO DERECHA: UNA SOLA LÍNEA COMPACTA, PUNTOS GRANDES, BORDE VISO */
   .player-info {
     display: flex;
-    align-items: center; /* Centra verticalmente */
-    gap: 16px; /* Separación considerable entre izquierda y derecha */
+    align-items: center;
+    gap: 16px;
     flex: 0 0 auto;
     padding: 10px 14px;
     background: rgba(180,140,60,0.05);
@@ -139,7 +138,7 @@
   }
 
   .vp-value {
-    font-size: 22px; /* ✅ PUNTOS GRANDES */
+    font-size: 22px;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 700;
     color: #e8c96a;
@@ -250,7 +249,6 @@
         <div class="player-name" id="display-name">—</div>
       </div>
       
-      <!-- ✅ INFO DERECHA: UNA SOLA LÍNEA COMPACTA, BORDE VISO -->
       <div class="player-info">
         <div class="rank-region">
           <span id="display-rank">—</span>
@@ -304,6 +302,8 @@
 <script>
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
+
+let currentIntervalId = null; // ✅ Variable global para controlar el único intervalo activo
 
 async function apiGet(path) {
   const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
@@ -421,11 +421,32 @@ async function searchPlayer() {
     if (!isUUID) throw new Error('Solo se permite UUID. Copia tu UUID de pred.gg.');
 
     const uuid = input;
+
+    // 🔥 CRÍTICO: Cancelar intervalo ANTES de iniciar nueva búsqueda
+    if (currentIntervalId) {
+      clearInterval(currentIntervalId);
+      currentIntervalId = null;
+    }
+
     await loadStats(uuid);
+    
+    // Guardar UUID para refresco automático
+    localStorage.setItem('lastUUID', uuid);
     
     $('search-row').style.display = 'none';
     $('player-card').style.display = 'block';
-    
+
+    // 🟢 Iniciar nuevo intervalo para este jugador
+    currentIntervalId = setInterval(() => {
+      // Evitar refresco si la tarjeta ya no está visible (seguridad extra)
+      if ($('player-card').style.display === 'none') {
+        clearInterval(currentIntervalId);
+        currentIntervalId = null;
+        return;
+      }
+      loadStats(uuid);
+    }, 15000);
+
   } catch (e) {
     $('error-msg').textContent = '✕ ' + e.message.slice(0, 100);
     $('error-msg').style.display = 'block';
@@ -433,6 +454,12 @@ async function searchPlayer() {
 }
 
 function resetSearch() {
+  // 🔥 Cancelar intervalo si se vuelve al buscador
+  if (currentIntervalId) {
+    clearInterval(currentIntervalId);
+    currentIntervalId = null;
+  }
+
   $('player-card').style.display = 'none';
   $('search-row').style.display = 'flex';
   $('player-input').value = '';
@@ -442,13 +469,28 @@ function resetSearch() {
 }
 
 window.onload = () => {
+  // 🟥 Limpiar intervalo previo al cargar (seguridad por si hubiera persistencia)
+  if (currentIntervalId) {
+    clearInterval(currentIntervalId);
+    currentIntervalId = null;
+  }
+
   const savedUUID = localStorage.getItem('lastUUID');
   
   if (savedUUID && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(savedUUID)) {
     $('search-row').style.display = 'none';
     $('player-card').style.display = 'block';
     loadStats(savedUUID);
-    setInterval(() => loadStats(savedUUID), 15000);
+    
+    currentIntervalId = setInterval(() => {
+      // Evitar refresco si la tarjeta ya no está visible
+      if ($('player-card').style.display === 'none') {
+        clearInterval(currentIntervalId);
+        currentIntervalId = null;
+        return;
+      }
+      loadStats(savedUUID);
+    }, 15000);
   }
 };
 
@@ -458,5 +500,6 @@ document.getElementById('player-input').addEventListener('keydown', e => {
 });
 document.getElementById('back-arrow').onclick = resetSearch;
 </script>
+
 </body>
 </html>
