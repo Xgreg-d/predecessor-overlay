@@ -15,7 +15,7 @@
     color: #e8e0d0;
   }
   #search-panel {
-    background: rgba(10, 14, 20, 0.92);
+    background: rgba(10, 14, 20, 0.95);
     border: 1px solid rgba(180, 140, 60, 0.4);
     border-radius: 12px;
     padding: 14px 16px;
@@ -29,14 +29,14 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, rgba(180,140,60,0), #b48c3c 20%, #e8c96a 50%, #b48c3c 80%, rgba(180,140,60,0));
+    background: linear-gradient(90deg, transparent, #b48c3c 20%, #e8c96a 50%, #b48c3c 80%, transparent);
   }
 
   .game-logo {
     font-family: 'Rajdhani', sans-serif;
     font-size: 11px; font-weight: 700;
     letter-spacing: 3px; text-transform: uppercase;
-    color: #b48c3c; margin-bottom: 12px; opacity: 0.95;
+    color: #b48c3c; margin-bottom: 10px; opacity: 0.9;
     display: flex; align-items: center; gap: 6px;
   }
 
@@ -122,50 +122,50 @@
   }
   .back-arrow:hover svg { fill: #e8c96a; }
 
-  /* ✅ NUEVA SECCIÓN: TARJETA DE IDENTIDAD DEL JUGADOR (separada visualmente) */
   #player-card {
     display: none;
     margin-top: 16px;
-    background: rgba(8,12,18,0.96);
-    border: 1px solid rgba(180,140,60,0.2);
-    border-radius: 8px;
+    border-radius: 10px;
     overflow: hidden;
   }
 
-  /* tarjeta de identidad */
+  /* ✅ TARJETA DE IDENTIDAD: todo en una caja con fondo semi-transparente */
   #player-identity {
-    padding: 18px;
-    background: linear-gradient(180deg, rgba(20,24,30,0.95) 0%, rgba(10,14,20,0.98) 100%);
-    border-bottom: 1px solid rgba(180,140,60,0.3);
+    padding: 16px;
+    background: rgba(15, 20, 28, 0.92);
+    border: 1px solid rgba(180,140,60,0.25);
+    border-radius: 8px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.6), 0 0 0 1px rgba(180,140,60,0.1) inset;
     position: relative;
+    margin-bottom: 14px;
   }
-  
+
   #player-identity::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #b48c3c 20%, #e8c96a 50%, #b48c3c 80%, transparent);
-    opacity: 0.6;
+    background: linear-gradient(90deg, transparent, #b48c3c 25%, #e8c96a 50%, #b48c3c 75%, transparent);
+    opacity: 0.7;
   }
 
-  .identity-row {
+  .identity-top {
     display: flex;
     align-items: center;
     gap: 14px;
-    flex-wrap: wrap;
+    margin-bottom: 10px;
   }
 
   .player-name-wrapper {
     flex: 1 1 auto;
-    display: flex;
-    align-items: center;
     min-width: 0;
   }
 
   .player-name {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 28px; font-weight: 700;
+    font-size: 30px;
+    font-weight: 700;
     color: #f0e8d0;
     white-space: nowrap;
     overflow: hidden;
@@ -173,77 +173,76 @@
     letter-spacing: -0.5px;
   }
 
-  /* panel de info (rank, server, vp) */
+  /* caja de info (rango, server, vp) — ya existente, pero integrada visualmente */
   .player-info-panel {
+    margin-left: auto;
     flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 10px 16px;
-    background: rgba(180,140,60,0.1);
-    border: 1px solid rgba(180,140,60,0.4);
-    border-radius: 8px;
+    background: rgba(180,140,60,0.12);
+    border: 1px solid rgba(180,140,60,0.35);
+    border-radius: 6px;
+    padding: 8px 12px;
   }
 
   .rank-region {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #e8c96a;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     display: flex;
     align-items: baseline;
-    gap: 8px;
+    gap: 6px;
   }
 
   .vp-box {
     display: flex;
     align-items: baseline;
-    gap: 10px;
+    gap: 8px;
+    margin-left: 10px;
   }
 
   .vp-value {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 26px; /* ✅ PUNTOS GRANDES Y DESTACADOS */
-    font-weight: 800;
+    font-size: 24px;
+    font-weight: 700;
     color: #e8c96a;
     letter-spacing: 0.5px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
   }
 
   .vp-label {
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 10px;
+    font-weight: 600;
     color: rgba(232,224,208,0.6);
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
   }
 
   .info-separator {
     font-size: 14px;
     color: #b48c3c;
-    padding: 0 6px;
+    padding: 0 5px;
   }
 
   .region-text { color: #b48c3c; font-weight: 500; }
 
+  /* línea divisoria fuerte para aislar esta sección */
   .divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(180,140,60,0.2), transparent);
-    margin: 0 18px 12px;
+    background: linear-gradient(90deg, transparent, rgba(180,140,60,0.35), transparent);
+    margin: 18px 0;
   }
 
-  /* Sección de métricas (grid) */
+  /* Resto: stats, héroes, partidas (ya existente, solo ajustes menores de padding) */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    padding: 0 18px 8px;
+    padding: 0 14px 8px;
   }
 
   .stat-cell {
-    padding: 12px 8px;
+    padding: 12px 6px;
     text-align: center;
-    border-bottom: 1px solid rgba(180,140,60,0.05);
+    border-bottom: 1px solid rgba(180,140,60,0.08);
   }
 
   .stat-label {
@@ -260,17 +259,14 @@
     font-size: 20px;
     font-weight: 700;
     color: #e8c96a;
-    transition: color 0.25s ease;
   }
 
   .stat-value.good    { color: #7ec87a; }
   .stat-value.neutral { color: #e8c96a; }
   .stat-value.warn    { color: #e87a4a; }
 
-  /* Sección de héroes */
   .heroes-section {
-    padding: 0 18px 12px;
-    border-bottom: 1px solid rgba(180,140,60,0.08);
+    padding: 0 14px 10px;
   }
 
   .section-label {
@@ -280,9 +276,6 @@
     color: rgba(232,224,208,0.35);
     margin-bottom: 10px;
     font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
 
   .hero-list { display: flex; flex-direction: column; gap: 6px; }
@@ -304,7 +297,6 @@
     background: rgba(255,255,255,0.06);
     border-radius: 3px;
     overflow: hidden;
-    position: relative;
   }
 
   .hero-bar {
@@ -312,7 +304,6 @@
     border-radius: 3px;
     background: linear-gradient(90deg, #b48c3c, #e8c96a);
     transition: width 0.7s ease;
-    box-shadow: 0 0 6px rgba(232,201,106,0.2);
   }
 
   .hero-wr {
@@ -332,9 +323,8 @@
     flex-shrink: 0;
   }
 
-  /* Sección de partidas recientes */
   .recent-section {
-    padding: 0 18px 16px;
+    padding: 0 14px 14px;
   }
 
   .match-list { display: flex; flex-direction: column; gap: 5px; }
@@ -345,9 +335,9 @@
     gap: 8px;
     font-size: 12px;
     padding: 6px 8px;
-    background: rgba(180,140,60,0.03);
+    background: rgba(180,140,60,0.04);
     border-radius: 4px;
-    border: 1px solid rgba(180,140,60,0.08);
+    border: 1px solid rgba(180,140,60,0.1);
   }
 
   .match-result {
@@ -360,11 +350,10 @@
     padding: 4px 0;
     border-radius: 3px;
     flex-shrink: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
-  .match-result.win  { color: #7ec87a; background: rgba(126,200,122,0.18); border-color: rgba(126,200,122,0.3); }
-  .match-result.loss { color: #e87a4a; background: rgba(232,122,74,0.18); border-color: rgba(232,122,74,0.3); }
+  .match-result.win  { color: #7ec87a; background: rgba(126,200,122,0.18); }
+  .match-result.loss { color: #e87a4a; background: rgba(232,122,74,0.18); }
 
   .match-hero {
     font-family: 'Rajdhani', sans-serif;
@@ -378,7 +367,7 @@
     white-space: nowrap;
   }
 
-  .match-kda { color: rgba(232,224,208,0.6); flex: 1; font-family: 'Exo 2', sans-serif; font-size: 12px; }
+  .match-kda { color: rgba(232,224,208,0.6); flex: 1; }
   .match-role {
     font-size: 10px;
     text-transform: uppercase;
@@ -387,17 +376,7 @@
     width: 50px;
     text-align: right;
     flex-shrink: 0;
-    font-weight: 600;
   }
-
-  .fade-in { animation: fadeIn 0.3s ease forwards; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-  .search-hidden { display: none !important; }
-  .slide-up { animation: slideUp 0.3s ease forwards; }
-  .slide-down { animation: slideDown 0.3s ease forwards; }
-  @keyframes slideUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-20px); } }
-  @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 </style>
 
 </head>
