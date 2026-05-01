@@ -64,8 +64,7 @@
   button:disabled { opacity: 0.4; cursor: not-allowed; }
   #status-msg { font-size: 11px; color: rgba(232,224,208,0.4); margin-top: 8px; min-height: 14px; }
   #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
-  
-  /* FLECHA EN BORDE SUPERIOR IZQUIERDO */
+
   .back-arrow {
     position: absolute;
     top: 10px; left: 10px;
@@ -78,94 +77,95 @@
     z-index: 10;
   }
   .back-arrow:hover { transform: scale(1.1); }
-  .back-arrow svg {
-    width: 16px; height: 16px;
-    fill: rgba(180,140,60,0.7);
-  }
+  .back-arrow svg { width: 16px; height: 16px; fill: rgba(180,140,60,0.7); }
   .back-arrow:hover svg { fill: #e8c96a; }
 
-  #player-card { 
-    display: none; 
-    margin-top: 10px; 
-    background: rgba(8,12,18,0.95); 
-    border: 1px solid rgba(180,140,60,0.25); 
-    border-radius: 4px; 
-    overflow: hidden; 
-  }
+  #player-card { display: none; margin-top: 10px; background: rgba(8,12,18,0.95); border: 1px solid rgba(180,140,60,0.25); border-radius: 4px; overflow: hidden; }
+
   .card-header { 
     display: flex; 
     align-items: center; 
-    gap: 12px; 
+    gap: 12px;
     padding: 12px 14px; 
     background: rgba(180,140,60,0.07); 
-    border-bottom: 1px solid rgba(180,140,60,0.15);
+    border-bottom: 1px solid rgba(180,140,60,0.15); 
   }
-  .avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: rgba(180,140,60,0.2);
-    border: 1.5px solid rgba(180,140,60,0.5);
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 16px; 
-    font-weight: 700;
-    color: #e8c96a;
-    flex-shrink: 0;
-    overflow: hidden; /* Importante para que la imagen se corte bien */
-  }
-  .avatar img {
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; /* Mantiene la proporción de la imagen */
-    border-radius: 50%; /* Hace que la imagen sea circular */
-  }
-  .player-info {
+
+  .player-name-wrapper {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    justify-content: center; /* Centra verticalmente */
     align-items: center;
-    flex: 1; /* Ocupa el espacio restante */
-    text-align: center;
+    justify-content: flex-start;
+    min-width: 0;
   }
+
   .player-name {
     font-family: 'Rajdhani', sans-serif;
-    font-size: 20px; 
+    font-size: 22px; 
     font-weight: 700;
     color: #f0e8d0; 
-    letter-spacing: 0.5px; 
-    line-height: 1;
-    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
+
+  /* ✅ INFO DERECHA: UNA SOLA LÍNEA COMPACTA, PUNTOS GRANDES, BORDE VISO */
+  .player-info {
+    display: flex;
+    align-items: center; /* Centra verticalmente */
+    gap: 16px; /* Separación considerable entre izquierda y derecha */
+    flex: 0 0 auto;
+    padding: 10px 14px;
+    background: rgba(180,140,60,0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(180,140,60,0.15);
+  }
+
   .rank-region {
-    font-size: 12px; /* Tamaño grande para rango y región */
+    font-size: 14px;
     font-family: 'Rajdhani', sans-serif;
     font-weight: 600;
     color: #e8c96a;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     display: flex;
-    align-items: center;
-    gap: 10px;
+    align-items: baseline;
+    gap: 8px;
   }
-  .rank-region span {
-    font-size: 14px; /* Aumentar tamaño de texto de rango/región */
+
+  .vp-box {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
   }
-  .region-separator {
-    font-size: 12px;
-    color: rgba(232,224,208,0.3); /* Color sutil para el separador | */
-    padding: 0 6px;
-  }
-  .region-text {
-    color: rgba(232,224,208,0.7); /* Color más oscuro para la región */
-    font-size: 12px;
-    font-family: 'Exo 2', sans-serif;
-    font-weight: 500;
+
+  .vp-value {
+    font-size: 22px; /* ✅ PUNTOS GRANDES */
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    color: #e8c96a;
     letter-spacing: 0.5px;
   }
-  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); }
-  .stat-cell { padding: 10px 8px; text-align: center; border-right: 1px solid rgba(180,140,60,0.1); border-bottom: 1px solid rgba(180,140,60,0.1); }
-  .stat-cell:nth-child(3) { border-right: none; }
+
+  .vp-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(232,224,208,0.7);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .info-separator {
+    font-size: 14px;
+    color: #b48c3c;
+    padding: 0 4px;
+  }
+
+  .region-text { color: #e8c96a; }
+
+  .divider { height: 1px; background: rgba(180,140,60,0.1); margin: 0 14px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat-cell { padding: 10px 8px; text-align: center; border-bottom: 1px solid rgba(180,140,60,0.1); }
   .stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(232,224,208,0.35); margin-bottom: 4px; }
   .stat-value {
     font-family: 'Rajdhani', sans-serif;
@@ -175,7 +175,8 @@
   .stat-value.good    { color: #7ec87a; }
   .stat-value.neutral { color: #e8c96a; }
   .stat-value.warn    { color: #e87a4a; }
-  .heroes-section { padding: 10px 14px 12px; border-top: 1px solid rgba(180,140,60,0.1); }
+
+  .heroes-section { padding: 10px 14px 12px; }
   .section-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: rgba(232,224,208,0.3); margin-bottom: 8px; }
   .hero-list { display: flex; flex-direction: column; gap: 5px; }
   .hero-row { display: flex; align-items: center; gap: 8px; }
@@ -190,6 +191,7 @@
   .hero-bar { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #b48c3c, #e8c96a); transition: width 0.5s ease; }
   .hero-wr { font-size: 11px; font-weight: 600; color: #9aba90; width: 38px; text-align: right; flex-shrink: 0; }
   .hero-matches { font-size: 10px; color: rgba(232,224,208,0.3); width: 32px; text-align: right; flex-shrink: 0; }
+
   .recent-section { padding: 0 14px 12px; }
   .match-list { display: flex; flex-direction: column; gap: 4px; }
   .match-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
@@ -213,14 +215,13 @@
     letter-spacing: 1px; color: rgba(180,140,60,0.6);
     width: 48px; text-align: right; flex-shrink: 0;
   }
-  .divider { height: 1px; background: rgba(180,140,60,0.1); margin: 0 14px; }
+
   #error-msg { display: none; padding: 10px 0 0; font-size: 12px; color: #e87a4a; text-align: center; letter-spacing: 0.5px; }
   .loading-dots::after { content: ''; animation: dots 1.2s infinite; }
   @keyframes dots { 0% { content: '.'; } 33% { content: '..'; } 66% { content: '...'; } 100% { content: ''; } }
   .fade-in { animation: fadeIn 0.4s ease forwards; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   
-  /* Animaciones para toggle */
   .search-hidden { display: none !important; }
   .slide-up { animation: slideUp 0.3s ease forwards; }
   .slide-down { animation: slideDown 0.3s ease forwards; }
@@ -231,7 +232,6 @@
 <body>
 
 <div id="search-panel">
-  <!-- FLECHA EN BORDE SUPERIOR IZQUIERDO -->
   <div class="back-arrow" id="back-arrow">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
   </div>
@@ -246,27 +246,25 @@
 
   <div id="player-card">
     <div class="card-header">
-      <!-- ✅ AVATAR CON IMAGEN DEL RANGO -->
-      <div class="avatar" id="avatar-image">
-        <img id="rank-icon" src="" alt="" />
-      </div>
-
-      <!-- ✅ INFO JUGADOR: NOMBRE CENTRADO, RANGO Y REGIÓN A LA IZQUIERDA -->
-      <div class="player-info">
+      <div class="player-name-wrapper">
         <div class="player-name" id="display-name">—</div>
+      </div>
+      
+      <!-- ✅ INFO DERECHA: UNA SOLA LÍNEA COMPACTA, BORDE VISO -->
+      <div class="player-info">
         <div class="rank-region">
           <span id="display-rank">—</span>
-          <span class="region-separator">|</span>
+          <span class="info-separator">|</span>
           <span id="display-region" class="region-text">—</span>
         </div>
-      </div>
-
-      <!-- PUNTOS (A LA DERECHA) -->
-      <div style="margin-left:auto; text-align:right;">
-        <div style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#e8c96a;line-height:1;" id="display-vp">—</div>
-        <div style="font-size:9px;letter-spacing:2px;color:rgba(232,224,208,0.3);text-transform:uppercase;">Puntos</div>
+        <div class="vp-box">
+          <span id="display-vp" class="vp-value">—</span>
+          <span class="vp-label">Puntos</span>
+        </div>
       </div>
     </div>
+
+    <div class="divider"></div>
 
     <div class="stats-grid">
       <div class="stat-cell">
@@ -280,6 +278,10 @@
       <div class="stat-cell">
         <div class="stat-label">KDA</div>
         <div class="stat-value neutral" id="stat-kda">—</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">PS Prom.</div>
+        <div class="stat-value neutral" id="stat-ps">—</div>
       </div>
     </div>
 
@@ -303,18 +305,12 @@
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
 
-const ROLE_MAP = {
-  OFFLANE: 'Offlane', JUNGLE: 'Jungle', MIDLANE: 'Mid',
-  CARRY: 'Carry', SUPPORT: 'Support'
-};
-
 async function apiGet(path) {
   const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-// ✅ Cargar datos (SIN MENSAJES, DIRECTO)
 async function loadStats(uuid) {
   try {
     const [statsRes, matchesRes] = await Promise.all([
@@ -325,7 +321,6 @@ async function loadStats(uuid) {
     const player = statsRes?.data?.player;
     if (!player) throw new Error('Jugador no encontrado');
 
-    // Datos del perfil
     const name = player.name || 'Desconocido';
     const region = (player.favRegion || '—')
       .replace('NA', 'NA').replace('NA_EAST', 'NA East')
@@ -336,28 +331,11 @@ async function loadStats(uuid) {
     const rank = lastRating.rank?.name || lastRating.rank?.tierName || '—';
     const vp = lastRating.points || 0;
 
-    // ✅ NUEVO: Cargar icono del rango
-    // Usar la API de pred.gg para obtener el icono del rango
-    // En pred.gg, los iconos siguen la estructura: https://pred.gg/images/ranks/RANK_NAME.png
-    const rankName = rank.replace(' ', '-').toLowerCase(); // "Platinum II" → "platinum-ii"
-    const rankIconUrl = `https://pred.gg/images/ranks/${rankName}.png`;
-    
-    // Preload la imagen para que se vea mejor
-    const rankImg = new Image();
-    rankImg.src = rankIconUrl;
-    rankImg.onload = () => {
-      document.getElementById('rank-icon').src = rankIconUrl;
-    };
-    rankImg.onerror = () => {
-      document.getElementById('rank-icon').src = ''; // Si falla, se queda en blanco (o poner fallback)
-    };
-
     $('display-name').textContent = name;
     $('display-rank').textContent = rank;
     $('display-region').textContent = region;
     $('display-vp').textContent = vp.toLocaleString();
 
-    // Stats recientes (últimas 5 partidas)
     const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
     let wins = 0, losses = 0, k = 0, d = 0, a = 0;
     matchesData.forEach(m => {
@@ -377,8 +355,8 @@ async function loadStats(uuid) {
     $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
     $('stat-kda').textContent = kda;
     $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
+    $('stat-ps').textContent = '—';
 
-    // Héroes favoritos
     const heroList = $('hero-list');
     heroList.innerHTML = '';
     if (matchesData.length === 0) {
@@ -406,7 +384,6 @@ async function loadStats(uuid) {
       });
     }
 
-    // Últimas 5 partidas
     const matchList = $('match-list');
     matchList.innerHTML = '';
     if (matchesData.length === 0) {
@@ -428,7 +405,6 @@ async function loadStats(uuid) {
       });
     }
 
-    // Guardar UUID
     localStorage.setItem('lastUUID', uuid);
 
   } catch (e) {
@@ -436,7 +412,6 @@ async function loadStats(uuid) {
   }
 }
 
-// ✅ Buscar jugador (MUESTRA TARJETA INMEDIATAMENTE)
 async function searchPlayer() {
   const input = $('player-input').value.trim();
   if (!input) return;
@@ -448,10 +423,8 @@ async function searchPlayer() {
     const uuid = input;
     await loadStats(uuid);
     
-    // ✅ MOSTRAR TARJETA INMEDIATAMENTE (sin animaciones complejas)
     $('search-row').style.display = 'none';
-    const card = $('player-card');
-    card.style.display = 'block';
+    $('player-card').style.display = 'block';
     
   } catch (e) {
     $('error-msg').textContent = '✕ ' + e.message.slice(0, 100);
@@ -459,7 +432,6 @@ async function searchPlayer() {
   }
 }
 
-// ✅ Volver al buscador (MUESTRA BÚSQUEDA INMEDIATAMENTE)
 function resetSearch() {
   $('player-card').style.display = 'none';
   $('search-row').style.display = 'flex';
@@ -469,28 +441,17 @@ function resetSearch() {
   $('status-msg').textContent = '';
 }
 
-// ✅ Auto-carga al inicio (SIN RETRASOS)
 window.onload = () => {
   const savedUUID = localStorage.getItem('lastUUID');
   
   if (savedUUID && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(savedUUID)) {
-    // Auto-cargar SILENCIOSAMENTE (sin animaciones para evitar retrasos)
     $('search-row').style.display = 'none';
     $('player-card').style.display = 'block';
-    
-    // Cargar datos
     loadStats(savedUUID);
-    
-    // Auto-refrescar cada 15s
-    setInterval(() => {
-      loadStats(savedUUID);
-    }, 15000);
-  } else {
-    // Si no hay UUID, no hacer nada (ya está visible el buscador)
+    setInterval(() => loadStats(savedUUID), 15000);
   }
 };
 
-// Eventos
 document.getElementById('search-btn').onclick = searchPlayer;
 document.getElementById('player-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') searchPlayer();
