@@ -413,6 +413,7 @@
 <script>
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
+const REFRESH_INTERVAL_MS = 30 * 60 * 1000; // ✅ 30 minutos = 1,800,000 ms
 
 let currentIntervalId = null; // ✅ Variable global para controlar el único intervalo activo
 
@@ -556,7 +557,7 @@ async function searchPlayer() {
         return;
       }
       loadStats(uuid);
-    }, 15000);
+    }, REFRESH_INTERVAL_MS); // ✅ 30 minutos
 
   } catch (e) {
     $('error-msg').textContent = '✕ ' + e.message.slice(0, 100);
@@ -601,7 +602,7 @@ window.onload = () => {
         return;
       }
       loadStats(savedUUID);
-    }, 15000);
+    }, REFRESH_INTERVAL_MS); // ✅ 30 minutos
   }
 };
 
