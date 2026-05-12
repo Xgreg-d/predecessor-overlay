@@ -10,7 +10,7 @@
   body {
     background: transparent;
     font-family: 'Exo 2', sans-serif;
-    width: 450px; /* ✅ Aumentado de 420px a 450px para más espacio */
+    width: 450px;
     overflow: hidden;
     color: #e8e0d0;
   }
@@ -38,8 +38,8 @@
     color: #b48c3c; margin-bottom: 10px; opacity: 0.9;
     display: flex;
     align-items: center;
-    gap: 10px; /* ✅ Espacio entre flecha y logo */
-    padding-left: 36px; /* ✅ ESPACIO PARA LA FLECHA */
+    gap: 10px;
+    padding-left: 36px;
   }
   input[type="text"] {
     flex: 1;
@@ -86,7 +86,7 @@
     justify-content: center;
     flex-shrink: 0;
     border-radius: 6px;
-    margin-right: -4px; /* Ajuste fino */
+    margin-right: -4px;
   }
   .back-arrow:hover { background: rgba(180,140,60,0.15); transform: scale(1.1); }
   .back-arrow svg { width: 16px; height: 16px; fill: rgba(180,140,60,0.7); }
@@ -102,7 +102,6 @@
     backdrop-filter: blur(14px);
   }
 
-  /* ✅ TARJETA DE IDENTIDAD: TODO EN UNA SOLA LÍNEA, NOMBRE 100% VISIBLE */
   .card-header {
     display: flex;
     align-items: center;
@@ -191,153 +190,32 @@
     margin: 16px 0;
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    padding: 0 14px 8px;
-    background: rgba(180,140,60,0.03);
-  }
-
-  .stat-cell {
-    padding: 14px 6px;
+  /* Sección de estado: Partidas no disponibles */
+  .status-section {
+    padding: 20px 14px;
     text-align: center;
-    border-bottom: 1px solid rgba(180,140,60,0.08);
+    background: rgba(180,140,60,0.05);
+    border-top: 1px solid rgba(180,140,60,0.1);
   }
 
-  .stat-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1.8px;
-    color: rgba(232,224,208,0.35);
-    margin-bottom: 4px;
-    font-weight: 600;
-  }
-
-  .stat-value {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
+  .status-icon {
+    font-size: 48px;
     color: #e8c96a;
-  }
-  .stat-value.good    { color: #7ec87a; }
-  .stat-value.neutral { color: #e8c96a; }
-  .stat-value.warn    { color: #e87a4a; }
-
-  .heroes-section {
-    padding: 16px 14px 12px;
-    background: rgba(180,140,60,0.03);
+    margin-bottom: 8px;
   }
 
-  .section-label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: rgba(232,224,208,0.35);
-    margin-bottom: 10px;
-    font-weight: 600;
-  }
-
-  .hero-list { display: flex; flex-direction: column; gap: 6px; }
-  .hero-row { display: flex; align-items: center; gap: 8px; }
-
-  .hero-name {
-    font-family: 'Rajdhani', sans-serif;
+  .status-text {
     font-size: 14px;
     font-weight: 600;
     color: #c8b898;
-    width: 100px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    flex-shrink: 0;
   }
 
-  .hero-bar-wrap {
-    flex: 1;
-    height: 6px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 3px;
-    overflow: hidden;
-  }
-
-  .hero-bar {
-    height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(90deg, #b48c3c, #e8c96a);
-    transition: width 0.7s ease;
-  }
-
-  .hero-wr {
+  .status-subtext {
     font-size: 12px;
-    font-weight: 700;
-    color: #9aba90;
-    width: 38px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .hero-matches {
-    font-size: 10px;
-    color: rgba(232,224,208,0.35);
-    width: 32px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .recent-section {
-    padding: 0 14px 16px;
-    background: rgba(180,140,60,0.03);
-  }
-
-  .match-list { display: flex; flex-direction: column; gap: 5px; }
-
-  .match-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    padding: 6px 8px;
-    background: rgba(180,140,60,0.04);
-    border-radius: 4px;
-    border: 1px solid rgba(180,140,60,0.1);
-  }
-
-  .match-result {
-    width: 26px;
-    text-align: center;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 3px 0;
-    border-radius: 3px;
-    flex-shrink: 0;
-  }
-  .match-result.win  { color: #7ec87a; background: rgba(126,200,122,0.18); }
-  .match-result.loss { color: #e87a4a; background: rgba(232,122,74,0.18); }
-
-  .match-hero {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #c8b898;
-    width: 90px;
-    flex-shrink: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .match-kda { color: rgba(232,224,208,0.6); flex: 1; }
-  .match-role {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: rgba(180,140,60,0.7);
-    width: 50px;
-    text-align: right;
-    flex-shrink: 0;
+    color: rgba(232,224,208,0.4);
+    margin-top: 4px;
   }
 </style>
-
 </head>
 <body>
 
@@ -346,7 +224,7 @@
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
   </div>
 
-  <div class="game-logo">⬡ Predecessor Stats · Split Actualizado</div>
+  <div class="game-logo">⬡ Predecessor Stats</div>
   <div class="search-row" id="search-row">
     <input type="text" id="player-input" placeholder="UUID de pred.gg..." autocomplete="off" />
     <button id="search-btn">Buscar</button>
@@ -373,49 +251,15 @@
       </div>
     </div>
 
-    <div class="divider"></div>
-
-    <div class="stats-grid">
-      <div class="stat-cell">
-        <div class="stat-label">Partidas</div>
-        <div class="stat-value neutral" id="stat-matches">—</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">Winrate</div>
-        <div class="stat-value" id="stat-winrate">—</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">KDA</div>
-        <div class="stat-value neutral" id="stat-kda">—</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">PS Prom.</div>
-        <div class="stat-value neutral" id="stat-ps">—</div>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="heroes-section">
-      <div class="section-label">Héroes favoritos</div>
-      <div class="hero-list" id="hero-list"></div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="recent-section">
-      <div class="section-label" style="padding:10px 0 6px;">Últimas 5 partidas</div>
-      <div class="match-list" id="match-list"></div>
-    </div>
+    
   </div>
 </div>
 
 <script>
 const WORKER_URL = 'https://pred-proxy.wuicho395.workers.dev';
 const $ = id => document.getElementById(id);
-const REFRESH_INTERVAL_MS = 30 * 60 * 1000; // ✅ 30 minutos = 1,800,000 ms
 
-let currentIntervalId = null; // ✅ Variable global para controlar el único intervalo activo
+let currentIntervalId = null;
 
 async function apiGet(path) {
   const res = await fetch(WORKER_URL + path, { headers: { 'Accept': 'application/json' } });
@@ -425,10 +269,8 @@ async function apiGet(path) {
 
 async function loadStats(uuid) {
   try {
-    const [statsRes, matchesRes] = await Promise.all([
-      apiGet(`/stats?uuid=${uuid}`),
-      apiGet(`/matches?uuid=${uuid}`)
-    ]);
+    // ✅ Solo solicitamos stats (ya que /matches falla)
+    const statsRes = await apiGet(`/stats?uuid=${uuid}`);
 
     const player = statsRes?.data?.player;
     if (!player) throw new Error('Jugador no encontrado');
@@ -448,75 +290,6 @@ async function loadStats(uuid) {
     $('display-region').textContent = region;
     $('display-vp').textContent = vp.toLocaleString();
 
-    const matchesData = matchesRes?.data?.player?.matchesPaginated?.results || [];
-    let wins = 0, losses = 0, k = 0, d = 0, a = 0;
-    matchesData.forEach(m => {
-      const me = m.matchPlayers?.[0] || {};
-      if (m.match?.winningTeam === (me.team || 0)) wins++;
-      else losses++;
-      k += me.kills || 0; d += me.deaths || 0; a += me.assists || 0;
-    });
-
-    const totalMatches = wins + losses;
-    const wr = totalMatches > 0 ? (wins / totalMatches * 100).toFixed(1) : 0;
-    const kda = d > 0 ? ((k + a) / d).toFixed(2) : '0.00';
-
-    const matchCount = matchesData.length > 0 ? 5 : 0;
-    $('stat-matches').textContent = matchCount.toLocaleString();
-    $('stat-winrate').textContent = wr + '%';
-    $('stat-winrate').className = 'stat-value ' + (wr >= 55 ? 'good' : wr >= 45 ? 'neutral' : 'warn');
-    $('stat-kda').textContent = kda;
-    $('stat-kda').className = 'stat-value ' + (parseFloat(kda) >= 3 ? 'good' : parseFloat(kda) >= 1.5 ? 'neutral' : 'warn');
-    $('stat-ps').textContent = '—';
-
-    const heroList = $('hero-list');
-    heroList.innerHTML = '';
-    if (matchesData.length === 0) {
-      heroList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin datos</div>';
-    } else {
-      const heroCounts = {};
-      matchesData.forEach(m => {
-        const hero = m.matchPlayers?.[0]?.hero?.data?.displayName || 'Héroe';
-        heroCounts[hero] = (heroCounts[hero] || 0) + 1;
-      });
-      const sortedHeroes = Object.entries(heroCounts)
-        .sort((a,b) => b[1] - a[1])
-        .slice(0,4);
-      const maxGames = sortedHeroes[0]?.[1] || 1;
-      sortedHeroes.forEach(([name, count]) => {
-        const barW = Math.round((count / maxGames) * 100);
-        heroList.innerHTML += `
-          <div class="hero-row">
-            <div class="hero-name">${name}</div>
-            <div class="hero-bar-wrap" style="flex:1">
-              <div class="hero-bar" style="width:${barW}%"></div>
-            </div>
-            <div class="hero-wr">${count}p</div>
-          </div>`;
-      });
-    }
-
-    const matchList = $('match-list');
-    matchList.innerHTML = '';
-    if (matchesData.length === 0) {
-      matchList.innerHTML = '<div style="font-size:11px;color:rgba(232,224,208,0.25);">Sin partidas</div>';
-    } else {
-      matchesData.slice(0,5).forEach(m => {
-        const match = m.match || {};
-        const me = m.matchPlayers?.[0] || {};
-        const won = match.winningTeam === (me.team || 0);
-        const hero = me.hero?.data?.displayName || '—';
-        const k_ = me.kills||0, d_ = me.deaths||0, a_ = me.assists||0;
-        matchList.innerHTML += `
-          <div class="match-row">
-            <div class="match-result ${won?'win':'loss'}">${won?'V':'D'}</div>
-            <div class="match-hero">${hero}</div>
-            <div class="match-kda">${k_}/${d_}/${a_}</div>
-            <div class="match-role">—</div>
-          </div>`;
-      });
-    }
-
     localStorage.setItem('lastUUID', uuid);
 
   } catch (e) {
@@ -534,30 +307,25 @@ async function searchPlayer() {
 
     const uuid = input;
 
-    // 🔥 CRÍTICO: Cancelar intervalo ANTES de iniciar nueva búsqueda
     if (currentIntervalId) {
       clearInterval(currentIntervalId);
       currentIntervalId = null;
     }
 
     await loadStats(uuid);
-    
-    // Guardar UUID para refresco automático
     localStorage.setItem('lastUUID', uuid);
     
     $('search-row').style.display = 'none';
     $('player-card').style.display = 'block';
 
-    // 🟢 Iniciar nuevo intervalo para este jugador
     currentIntervalId = setInterval(() => {
-      // Evitar refresco si la tarjeta ya no está visible (seguridad extra)
       if ($('player-card').style.display === 'none') {
         clearInterval(currentIntervalId);
         currentIntervalId = null;
         return;
       }
       loadStats(uuid);
-    }, REFRESH_INTERVAL_MS); // ✅ 30 minutos
+    }, 30 * 60 * 1000); // 30 minutos
 
   } catch (e) {
     $('error-msg').textContent = '✕ ' + e.message.slice(0, 100);
@@ -566,7 +334,6 @@ async function searchPlayer() {
 }
 
 function resetSearch() {
-  // 🔥 Cancelar intervalo si se vuelve al buscador
   if (currentIntervalId) {
     clearInterval(currentIntervalId);
     currentIntervalId = null;
@@ -581,7 +348,6 @@ function resetSearch() {
 }
 
 window.onload = () => {
-  // 🟥 Limpiar intervalo previo al cargar (seguridad por si hubiera persistencia)
   if (currentIntervalId) {
     clearInterval(currentIntervalId);
     currentIntervalId = null;
@@ -595,14 +361,13 @@ window.onload = () => {
     loadStats(savedUUID);
     
     currentIntervalId = setInterval(() => {
-      // Evitar refresco si la tarjeta ya no está visible
       if ($('player-card').style.display === 'none') {
         clearInterval(currentIntervalId);
         currentIntervalId = null;
         return;
       }
       loadStats(savedUUID);
-    }, REFRESH_INTERVAL_MS); // ✅ 30 minutos
+    }, 30 * 60 * 1000); // 30 minutos
   }
 };
 
